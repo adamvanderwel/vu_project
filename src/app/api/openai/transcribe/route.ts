@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
 import OpenAI from "openai";
 
 if (!process.env.OPENAI_API_KEY) {
@@ -11,34 +10,22 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: Request) {
-  const body = await req.json();
-
-  const base64Audio = body.audio;
-
-  // Convert the base64 audio data to a Buffer
-  const audio = Buffer.from(base64Audio, "base64");
-
-  // Define the file path for storing the temporary WAV file
-  const filePath = "tmp/input.wav";
-
   try {
-    // Write the audio data to a temporary WAV file synchronously
-    fs.writeFileSync(filePath, audio);
+    const body = await req.json();
+    const base64Audio = body.audio;
 
-    // Create a readable stream from the temporary WAV file
-    const readStream = fs.createReadStream(filePath);
+    // Convert base64 to File object
+    const audioBuffer = Buffer.from(base64Audio, 'base64');
+    const file = new File([audioBuffer], 'audio.wav', { type: 'audio/wav' });
 
     const data = await openai.audio.transcriptions.create({
-      file: readStream,
+      file: file,
       model: "whisper-1",
     });
-
-    // Remove the temporary file after successful processing
-    fs.unlinkSync(filePath);
 
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error processing audio:", error);
-    return NextResponse.error();
+    return NextResponse.json({ error: "Failed to process audio" }, { status: 500 });
   }
 }
