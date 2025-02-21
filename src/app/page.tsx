@@ -286,53 +286,69 @@ const FinancialImpactCard = ({ financialData }: { financialData: any }) => (
 );
 
 export default function Home() {
-  const [currentStatus] = useState({
-    currentProduction: 42.5,
-    maxCapacity: 50,
-    marketPrice: 45.20,
-    status: "Optimized",
-    statusDescription: "Running at market-optimized capacity"
-  });
+  // Mock data for demonstration
+  const mockAssetInfo = {
+    type: 'wind',
+    name: 'Windpark Alpha',
+    location: 'North Sea',
+    id: 'WP001',
+    capacity: 100
+  };
 
-  const [reductionData] = useState({
+  const mockCurrentStatus = {
+    currentProduction: 75,
+    maxCapacity: 100,
+    marketPrice: 45.5,
+    status: 'Operational',
+    statusDescription: 'Running at optimal capacity'
+  };
+
+  const mockReductionData = {
     active: true,
-    reductionAmount: 7.5,
-    reductionPercentage: 15,
+    reductionAmount: 25,
+    reductionPercentage: 25,
     reasons: [
-      "Negative market prices expected in next hour",
-      "Grid congestion detected in local area",
-      "Optimizing for grid stability requirements"
+      'Grid congestion management',
+      'Market price optimization'
     ],
     benefits: [
-      "€450 in negative price exposure avoided",
-      "Contributing to grid stability",
-      "Earning additional flexibility premiums",
-      "Maintaining optimal asset performance"
+      'Reduced grid stress',
+      'Optimized revenue'
     ]
-  });
+  };
 
-  const [productionData] = useState([
-    { time: '09:00', actualProduction: 80, potentialProduction: 80, marketPrice: 45 },
-    { time: '10:00', actualProduction: 85, potentialProduction: 85, marketPrice: 42 },
-    { time: '11:00', actualProduction: 60, potentialProduction: 90, marketPrice: -5 },
-    { time: '12:00', actualProduction: 65, potentialProduction: 95, marketPrice: -10 },
-    { time: '13:00', actualProduction: 70, potentialProduction: 100, marketPrice: -8 },
-    { time: '14:00', actualProduction: 90, potentialProduction: 90, marketPrice: 38 }
-  ]);
+  const mockChartData = [
+    { time: '00:00', actualProduction: 80, potentialProduction: 85, marketPrice: 42 },
+    { time: '04:00', actualProduction: 75, potentialProduction: 90, marketPrice: 45 },
+    { time: '08:00', actualProduction: 85, potentialProduction: 95, marketPrice: 48 },
+    { time: '12:00', actualProduction: 90, potentialProduction: 90, marketPrice: 52 },
+    { time: '16:00', actualProduction: 70, potentialProduction: 85, marketPrice: 46 },
+    { time: '20:00', actualProduction: 65, potentialProduction: 80, marketPrice: 44 }
+  ];
 
-  const [financialData] = useState({
-    revenueToday: 2450.75,
-    revenueTrend: 12.5,
-    lossesAvoided: 450.00,
-    gridServicesValue: 225.50
-  });
+  const mockFinancialData = {
+    dailyRevenue: 12500,
+    monthlyRevenue: 375000,
+    yearlyRevenue: 4500000,
+    revenueImpact: -2500,
+    costSavings: 1500,
+    netImpact: -1000
+  };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
-      <LiveStatusCard currentStatus={currentStatus} />
-      <ReductionInsightsCard reductionData={reductionData} />
-      <ProductionChart data={productionData} />
-      <FinancialImpactCard financialData={financialData} />
-    </div>
+    <main className="container mx-auto p-4 space-y-6">
+      <motion.div
+        className="space-y-6"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        <AssetHeader assetInfo={mockAssetInfo} />
+        <LiveStatusCard currentStatus={mockCurrentStatus} />
+        <ReductionInsightsCard reductionData={mockReductionData} />
+        <ProductionChart data={mockChartData} />
+        <FinancialImpactCard financialData={mockFinancialData} />
+      </motion.div>
+    </main>
   );
 }
