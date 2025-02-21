@@ -252,19 +252,19 @@ const FinancialImpactCard = ({ financialData }: { financialData: any }) => (
         >
           {[
             {
-              title: "Revenue Today",
-              value: `€${financialData.revenueToday.toFixed(2)}`,
-              subtitle: `${financialData.revenueTrend >= 0 ? '+' : ''}${financialData.revenueTrend}% vs yesterday`
+              title: "Daily Revenue",
+              value: `€${financialData.dailyRevenue.toLocaleString()}`,
+              subtitle: "Total revenue today"
             },
             {
-              title: "Losses Avoided",
-              value: `€${financialData.lossesAvoided.toFixed(2)}`,
-              subtitle: "Through production management"
+              title: "Monthly Revenue",
+              value: `€${financialData.monthlyRevenue.toLocaleString()}`,
+              subtitle: "Total revenue this month"
             },
             {
-              title: "Grid Services Value",
-              value: `€${financialData.gridServicesValue.toFixed(2)}`,
-              subtitle: "Additional revenue from flexibility"
+              title: "Net Impact",
+              value: `€${financialData.netImpact.toLocaleString()}`,
+              subtitle: `${financialData.costSavings > 0 ? 'Savings' : 'Cost'} from adjustments`
             }
           ].map((item, index) => (
             <motion.div
