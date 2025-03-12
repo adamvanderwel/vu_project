@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wind, ArrowUpRight, ArrowDownRight, Settings, AlertTriangle, BarChart3, Wind as WindIcon, ChevronDown, ChevronUp, Info, Calendar, Activity, History, Zap, CheckCircle, AlertCircle, Check, X, ArrowRight, Clock, Timer } from 'lucide-react';
+import { Sun, ArrowUpRight, ArrowDownRight, Settings, AlertTriangle, BarChart3, Sun as SunIcon, ChevronDown, ChevronUp, Info, Calendar, Activity, History, Zap, CheckCircle, AlertCircle, Check, X, ArrowRight, Clock, Timer } from 'lucide-react';
 import Link from 'next/link';
 import { ProductionGraph, allDaysData, productionEvents, initializeProductionEvents } from './components/ProductionGraph';
 import { ProductionEvents } from './components/ProductionEvents';
@@ -49,7 +49,7 @@ const findDayDataByDate = (date: Date) => {
 // Tabs definition
 type TabType = 'live' | 'historical';
 
-const WindProduction = () => {
+const SolarProduction = () => {
   const [activeTab, setActiveTab] = useState<TabType>('live');
   
   // Set default selected dates to include days with curtailment events (Feb 28, Mar 3, Mar 7, Mar 11)
@@ -64,6 +64,11 @@ const WindProduction = () => {
   const [dateSelectionMode, setDateSelectionMode] = useState<'single' | 'multiple'>('multiple');
   const [showFinancialDetails, setShowFinancialDetails] = useState(true); // Auto-expand financial details
   const [showProductionEvents, setShowProductionEvents] = useState(true);
+
+  // Set page title
+  useEffect(() => {
+    document.title = 'Solar Energy Production';
+  }, []);
 
   // Initialize production events when component mounts
   useEffect(() => {
@@ -168,15 +173,15 @@ const WindProduction = () => {
     return `${format(sortedDates[0], 'd MMM', { locale: nl })} - ${format(sortedDates[sortedDates.length - 1], 'd MMM yyyy', { locale: nl })}`;
   };
 
-  const windAssets = [
+  const solarAssets = [
     {
       id: 1,
-      name: 'Wind Park Kubbeweg T1',
+      name: 'Solar Park Kubbeweg T1',
       location: 'Biddinghuizen',
       capacity: 3.5,
       currentProduction: 2.8,
       efficiency: 92,
-      windSpeed: 14.5,
+      solarIrradiance: 780,
       status: 'operational',
       alerts: 0,
       lastUpdated: '2 min ago',
@@ -207,12 +212,12 @@ const WindProduction = () => {
     },
     {
       id: 2,
-      name: 'Wind Park Kubbeweg T2',
+      name: 'Solar Park Kubbeweg T2',
       location: 'Biddinghuizen',
       capacity: 3.5,
       currentProduction: 3.1,
       efficiency: 96,
-      windSpeed: 15.2,
+      solarIrradiance: 810,
       status: 'operational',
       alerts: 1,
       lastUpdated: '1 min ago',
@@ -241,19 +246,19 @@ const WindProduction = () => {
     },
     {
       id: 3,
-      name: 'Wind Park North',
-      location: 'Den Helder',
+      name: 'Solar Park Almere',
+      location: 'Almere',
       capacity: 5.0,
       currentProduction: 4.2,
       efficiency: 88,
-      windSpeed: 18.3,
+      solarIrradiance: 750,
       status: 'maintenance',
       alerts: 2,
       lastUpdated: '5 min ago',
       productionConstraints: [
         {
           type: 'maintenance',
-          reason: 'Scheduled gearbox inspection',
+          reason: 'Scheduled panel inspection',
           impact: 'Operating at 60% capacity during inspection',
           lossPotential: '520 kWh (€67.60)',
           compensation: 'No - scheduled maintenance',
@@ -268,8 +273,8 @@ const WindProduction = () => {
         },
         {
           type: 'technical',
-          reason: 'Pitch system alert',
-          impact: 'Automatic safety limitation',
+          reason: 'Inverter alert',
+          impact: 'Automatic power reduction',
           lossPotential: '200 kWh (€26.00)',
           compensation: 'No - maintenance cost',
           compensationAmount: '€0.00',
@@ -291,24 +296,24 @@ const WindProduction = () => {
 
   // Summary stats for live view
   const liveSummaryStats = {
-    totalCapacity: windAssets.reduce((acc, asset) => acc + asset.capacity, 0),
-    currentProduction: windAssets.reduce((acc, asset) => acc + asset.currentProduction, 0),
-    averageEfficiency: Math.round(windAssets.reduce((acc, asset) => acc + asset.efficiency, 0) / windAssets.length),
-    totalAlerts: windAssets.reduce((acc, asset) => acc + asset.alerts, 0),
-    assetsInMaintenance: windAssets.filter(asset => asset.status === 'maintenance').length,
-    totalDailyRevenue: windAssets.reduce((acc, asset) => acc + asset.financialImpact.dailyRevenue, 0),
-    totalLostRevenue: windAssets.reduce((acc, asset) => acc + (asset.financialImpact.lostRevenue || 0), 0),
-    totalCurtailmentCompensation: windAssets.reduce((acc, asset) => acc + (asset.financialImpact.curtailmentCompensation || 0), 0),
-    totalConstraints: windAssets.reduce((acc, asset) => acc + asset.productionConstraints.length, 0),
-    gridCurtailmentCount: windAssets.reduce((acc, asset) => acc + asset.productionConstraints.filter(c => c.type === 'grid').length, 0)
+    totalCapacity: solarAssets.reduce((acc, asset) => acc + asset.capacity, 0),
+    currentProduction: solarAssets.reduce((acc, asset) => acc + asset.currentProduction, 0),
+    averageEfficiency: Math.round(solarAssets.reduce((acc, asset) => acc + asset.efficiency, 0) / solarAssets.length),
+    totalAlerts: solarAssets.reduce((acc, asset) => acc + asset.alerts, 0),
+    assetsInMaintenance: solarAssets.filter(asset => asset.status === 'maintenance').length,
+    totalDailyRevenue: solarAssets.reduce((acc, asset) => acc + asset.financialImpact.dailyRevenue, 0),
+    totalLostRevenue: solarAssets.reduce((acc, asset) => acc + (asset.financialImpact.lostRevenue || 0), 0),
+    totalCurtailmentCompensation: solarAssets.reduce((acc, asset) => acc + (asset.financialImpact.curtailmentCompensation || 0), 0),
+    totalConstraints: solarAssets.reduce((acc, asset) => acc + asset.productionConstraints.length, 0),
+    gridCurtailmentCount: solarAssets.reduce((acc, asset) => acc + asset.productionConstraints.filter(c => c.type === 'grid').length, 0)
   };
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-semibold">Wind Energy Production</h1>
-          <p className="text-gray-500 mt-2">Insights for your wind energy assets</p>
+          <h1 className="text-4xl font-semibold">Solar Energy Production</h1>
+          <p className="text-gray-500 mt-2">Insights for your solar energy assets</p>
         </div>
       </div>
 
@@ -355,12 +360,12 @@ const WindProduction = () => {
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <Zap className="w-5 h-5 text-blue-500" />
+                <Zap className="w-5 h-5 text-yellow-500" />
                 <h3 className="text-lg font-medium">Current Output</h3>
                 <InfoTooltip 
                   title="Current Output"
-                  explanation="The total amount of electricity being generated by all wind turbines at this moment."
-                  interpretation={`Your wind turbines are currently producing ${liveSummaryStats.currentProduction.toFixed(1)} MW out of a total capacity of ${liveSummaryStats.totalCapacity.toFixed(1)} MW, which means they are operating at ${((liveSummaryStats.currentProduction / liveSummaryStats.totalCapacity) * 100).toFixed(0)}% of maximum capacity.`}
+                  explanation="The total amount of electricity being generated by all solar panels at this moment."
+                  interpretation={`Your solar panels are currently producing ${liveSummaryStats.currentProduction.toFixed(1)} MW out of a total capacity of ${liveSummaryStats.totalCapacity.toFixed(1)} MW, which means they are operating at ${((liveSummaryStats.currentProduction / liveSummaryStats.totalCapacity) * 100).toFixed(0)}% of maximum capacity.`}
                 />
               </div>
               <div className="flex items-baseline gap-2">
@@ -387,12 +392,12 @@ const WindProduction = () => {
               transition={{ delay: 0.1 }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
+                <BarChart3 className="w-5 h-5 text-yellow-500" />
                 <h3 className="text-lg font-medium">Daily Revenue</h3>
                 <InfoTooltip 
                   title="Daily Revenue"
-                  explanation="Estimated revenue from your wind turbines based on current production and market prices."
-                  interpretation={`Your turbines are generating approximately €${liveSummaryStats.totalDailyRevenue.toLocaleString()} in revenue today. ${liveSummaryStats.totalLostRevenue > 0 ? `You're losing about €${liveSummaryStats.totalLostRevenue.toLocaleString()} due to constraints, but receiving €${liveSummaryStats.totalCurtailmentCompensation.toLocaleString()} in TenneT compensation for grid curtailment.` : 'All turbines are operating at optimal revenue levels.'}`}
+                  explanation="Estimated revenue from your solar panels based on current production and market prices."
+                  interpretation={`Your panels are generating approximately €${liveSummaryStats.totalDailyRevenue.toLocaleString()} in revenue today. ${liveSummaryStats.totalLostRevenue > 0 ? `You're losing about €${liveSummaryStats.totalLostRevenue.toLocaleString()} due to constraints, but receiving €${liveSummaryStats.totalCurtailmentCompensation.toLocaleString()} in TenneT compensation for grid curtailment.` : 'All panels are operating at optimal revenue levels.'}`}
                 />
               </div>
               <div className="flex items-baseline gap-2">
@@ -422,7 +427,7 @@ const WindProduction = () => {
                 <h3 className="text-lg font-medium">Production Constraints</h3>
                 <InfoTooltip 
                   title="Production Constraints"
-                  explanation="Factors currently limiting your wind turbines from producing at maximum capacity."
+                  explanation="Factors currently limiting your solar panels from producing at maximum capacity."
                   interpretation={`You have ${liveSummaryStats.totalConstraints} active production constraint${liveSummaryStats.totalConstraints !== 1 ? 's' : ''}. ${liveSummaryStats.totalConstraints === 0 ? 'All systems are operating at maximum capability.' : 'See details for each asset below.'}`}
                 />
               </div>
@@ -446,17 +451,17 @@ const WindProduction = () => {
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <Settings className="w-5 h-5 text-blue-500" />
+                <Settings className="w-5 h-5 text-yellow-500" />
                 <h3 className="text-lg font-medium">Maintenance</h3>
                 <InfoTooltip 
                   title="Maintenance"
-                  explanation="The number of turbines currently undergoing scheduled or unscheduled maintenance."
-                  interpretation={`You have ${liveSummaryStats.assetsInMaintenance} asset${liveSummaryStats.assetsInMaintenance !== 1 ? 's' : ''} currently in maintenance. ${liveSummaryStats.assetsInMaintenance === 0 ? 'All turbines are operational.' : 'Regular maintenance helps prevent failures and extends turbine lifespan.'}`}
+                  explanation="The number of panels currently undergoing scheduled or unscheduled maintenance."
+                  interpretation={`You have ${liveSummaryStats.assetsInMaintenance} panel${liveSummaryStats.assetsInMaintenance !== 1 ? 's' : ''} currently in maintenance. ${liveSummaryStats.assetsInMaintenance === 0 ? 'All panels are operational.' : 'Regular maintenance helps prevent failures and extends panel lifespan.'}`}
                 />
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold">{liveSummaryStats.assetsInMaintenance}</span>
-                <span className="text-gray-500">assets</span>
+                <span className="text-gray-500">panels</span>
               </div>
               <div className="flex items-center gap-2 mt-2 text-gray-500 text-sm">
                 <span>Currently in maintenance</span>
@@ -464,14 +469,14 @@ const WindProduction = () => {
             </motion.div>
           </div>
 
-          {/* Wind Assets List - Live View */}
+          {/* Solar Assets List - Live View */}
           <div className="bg-white rounded-lg overflow-hidden">
             <div className="px-6 py-4 border-b flex justify-between items-center">
-              <h3 className="text-xl font-semibold">Wind Assets</h3>
+              <h3 className="text-xl font-semibold">Solar Assets</h3>
               <div className="text-sm text-gray-500">Live Status</div>
             </div>
             <div className="divide-y">
-              {windAssets.map((asset) => (
+              {solarAssets.map((asset) => (
                 <motion.div
                   key={asset.id}
                   className="p-6 hover:bg-gray-50 transition-colors"
@@ -481,7 +486,24 @@ const WindProduction = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-3">
-                        <h4 className="text-lg font-medium">{asset.name}</h4>
+                        <div>
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <span className="font-medium">
+                              <span className="relative flex items-center">
+                                <span
+                                  className={`w-2 h-2 rounded-full mr-1.5 inline-block ${
+                                    asset.status === 'operational'
+                                      ? 'bg-green-500'
+                                      : asset.status === 'maintenance'
+                                      ? 'bg-yellow-500'
+                                      : 'bg-red-500'
+                                  }`}
+                                />
+                                {asset.name}
+                              </span>
+                            </span>
+                          </div>
+                        </div>
                         {asset.alerts > 0 && (
                           <span className="px-2 py-1 rounded-full bg-red-100 text-red-600 text-xs">
                             {asset.alerts} alerts
@@ -496,11 +518,11 @@ const WindProduction = () => {
                       <p className="text-gray-500">{asset.location}</p>
                     </div>
                     <Link
-                      href={`/productie/wind/${asset.id}`}
-                      className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 text-sm flex items-center gap-2"
+                      href={`/productie/solar/${asset.id}`}
+                      className="px-4 py-2 rounded-lg bg-yellow-50 text-gray-600 hover:bg-yellow-100 text-sm flex items-center gap-2"
                     >
-                      Details
-                      <ArrowUpRight className="w-4 h-4" />
+                      <span>Details</span>
+                      <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                   
@@ -513,8 +535,8 @@ const WindProduction = () => {
                             Current Output
                             <InfoTooltip 
                               title="Current Production"
-                              explanation="The amount of electricity this turbine is generating right now."
-                              interpretation={`This turbine is producing ${asset.currentProduction} MW out of its ${asset.capacity} MW capacity (${Math.round((asset.currentProduction / asset.capacity) * 100)}% of max capacity).`}
+                              explanation="The amount of electricity this panel is generating right now."
+                              interpretation={`This panel is producing ${asset.currentProduction} MW out of its ${asset.capacity} MW capacity (${Math.round((asset.currentProduction / asset.capacity) * 100)}% of max capacity).`}
                               position="bottom"
                             />
                           </p>
@@ -527,8 +549,8 @@ const WindProduction = () => {
                             Efficiency
                             <InfoTooltip 
                               title="Efficiency"
-                              explanation="How effectively this turbine converts available wind energy into electrical power."
-                              interpretation={`This turbine is operating at ${asset.efficiency}% efficiency, which is ${asset.efficiency > 90 ? 'excellent' : asset.efficiency > 80 ? 'good' : asset.efficiency > 70 ? 'average' : 'below average'}.`}
+                              explanation="How effectively this panel converts available solar energy into electrical power."
+                              interpretation={`This panel is operating at ${asset.efficiency}% efficiency, which is ${asset.efficiency > 90 ? 'excellent' : asset.efficiency > 80 ? 'good' : asset.efficiency > 70 ? 'average' : 'below average'}.`}
                               position="bottom"
                             />
                           </p>
@@ -536,23 +558,23 @@ const WindProduction = () => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500 flex items-center">
-                            Wind Speed
+                            Solar Irradiance
                             <InfoTooltip 
-                              title="Wind Speed"
-                              explanation="Current wind speed measured at the turbine's hub height."
-                              interpretation={`The current wind speed of ${asset.windSpeed} m/s is ${asset.windSpeed < 3 ? 'below the cut-in speed for most turbines' : asset.windSpeed > 25 ? 'approaching cut-out speed for safety' : 'within the optimal operating range'}.`}
+                              title="Solar Irradiance"
+                              explanation="Current solar irradiance measured at the panel's hub height."
+                              interpretation={`The current solar irradiance of ${asset.solarIrradiance} W/m² is ${asset.solarIrradiance < 300 ? 'below the cut-in threshold for most panels' : asset.solarIrradiance > 1000 ? 'approaching cut-out threshold for safety' : 'within the optimal operating range'}.`}
                               position="bottom"
                             />
                           </p>
-                          <p className="text-base font-medium">{asset.windSpeed} m/s</p>
+                          <p className="text-base font-medium">{asset.solarIrradiance} W/m²</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-500 flex items-center">
                             Status
                             <InfoTooltip 
                               title="Operational Status"
-                              explanation="The current operational state of the turbine."
-                              interpretation={`This turbine is currently ${asset.status === 'operational' ? 'fully operational and generating electricity' : 'undergoing maintenance and not producing at full capacity'}.`}
+                              explanation="The current operational state of the panel."
+                              interpretation={`This panel is currently ${asset.status === 'operational' ? 'fully operational and generating electricity' : 'undergoing maintenance and not producing at full capacity'}.`}
                               position="bottom"
                             />
                           </p>
@@ -573,8 +595,8 @@ const WindProduction = () => {
                             Daily Revenue
                             <InfoTooltip 
                               title="Daily Revenue"
-                              explanation="Estimated revenue from this turbine based on current production and market prices."
-                              interpretation={`This turbine is generating approximately €${asset.financialImpact.dailyRevenue.toLocaleString()} in revenue today.`}
+                              explanation="Estimated revenue from this panel based on current production and market prices."
+                              interpretation={`This panel is generating approximately €${asset.financialImpact.dailyRevenue.toLocaleString()} in revenue today.`}
                               position="bottom"
                             />
                           </p>
@@ -587,7 +609,7 @@ const WindProduction = () => {
                             <InfoTooltip 
                               title="Monthly Projection"
                               explanation="Estimated monthly revenue based on current performance."
-                              interpretation={`If current conditions persist, this turbine will generate approximately €${asset.financialImpact.projectedMonthly.toLocaleString()} this month.`}
+                              interpretation={`If current conditions persist, this panel will generate approximately €${asset.financialImpact.projectedMonthly.toLocaleString()} this month.`}
                               position="bottom"
                             />
                           </p>
@@ -601,7 +623,7 @@ const WindProduction = () => {
                               <InfoTooltip 
                                 title="Lost Revenue"
                                 explanation="Estimated revenue lost due to constraints and maintenance issues."
-                                interpretation={`This turbine is losing approximately €${asset.financialImpact.lostRevenue.toLocaleString()} due to the current constraints and maintenance issues.`}
+                                interpretation={`This panel is losing approximately €${asset.financialImpact.lostRevenue.toLocaleString()} due to the current constraints and maintenance issues.`}
                                 position="bottom"
                               />
                             </p>
@@ -615,7 +637,7 @@ const WindProduction = () => {
                               TenneT Compensation
                               <InfoTooltip 
                                 title="TenneT Compensation"
-                                explanation="Payment received from TenneT for curtailment of your wind production."
+                                explanation="Payment received from TenneT for curtailment of your solar production."
                                 interpretation={`You're receiving €${asset.financialImpact.curtailmentCompensation.toLocaleString()} from TenneT today to compensate for the mandated production curtailment.`}
                                 position="bottom"
                               />
@@ -766,8 +788,8 @@ const WindProduction = () => {
                 <h3 className="text-xl font-semibold">Historical Data Analysis</h3>
                 <InfoTooltip 
                   title="Historical Data Analysis"
-                  explanation="This section shows historical performance data for your wind turbines over a selected time period."
-                  interpretation="Use the date picker to select specific days or date ranges to analyze your wind farm's past performance."
+                  explanation="This section shows historical performance data for your solar panels over a selected time period."
+                  interpretation="Use the date picker to select specific days or date ranges to analyze your solar farm's past performance."
                   position="right"
                 />
               </div>
@@ -776,7 +798,7 @@ const WindProduction = () => {
                   onClick={() => setShowCalendar(!showCalendar)}
                   className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border hover:bg-gray-50"
                 >
-                  <Calendar className="w-5 h-5 text-blue-500" />
+                  <Calendar className="w-5 h-5 text-yellow-500" />
                   <span>{getDateRangeString()}</span>
                 </button>
 
@@ -822,12 +844,12 @@ const WindProduction = () => {
                 animate={{ opacity: 1, y: 0 }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <WindIcon className="w-5 h-5 text-blue-500" />
+                  <SunIcon className="w-5 h-5 text-yellow-500" />
                   <h3 className="text-lg font-medium">Average Production</h3>
                   <InfoTooltip 
                     title="Average Production"
                     explanation="The average amount of electricity produced across the selected time period."
-                    interpretation={`During this period, your wind turbines averaged ${aggregatedStats.currentProduction.toFixed(1)} MW production out of ${aggregatedStats.totalCapacity} MW capacity (${Math.round((aggregatedStats.currentProduction / aggregatedStats.totalCapacity) * 100)}% utilization).`}
+                    interpretation={`During this period, your solar panels averaged ${aggregatedStats.currentProduction.toFixed(1)} MW production out of ${aggregatedStats.totalCapacity} MW capacity (${Math.round((aggregatedStats.currentProduction / aggregatedStats.totalCapacity) * 100)}% utilization).`}
                   />
                 </div>
                 <div className="flex items-baseline gap-2">
@@ -847,11 +869,11 @@ const WindProduction = () => {
                 transition={{ delay: 0.1 }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <BarChart3 className="w-5 h-5 text-blue-500" />
+                  <BarChart3 className="w-5 h-5 text-yellow-500" />
                   <h3 className="text-lg font-medium">Average Efficiency</h3>
                   <InfoTooltip 
                     title="Average Efficiency"
-                    explanation="The average percentage of available wind energy that was successfully converted to electricity during this period."
+                    explanation="The average percentage of available solar energy that was successfully converted to electricity during this period."
                     interpretation={`Your average efficiency of ${aggregatedStats.averageEfficiency}% over this period is ${aggregatedStats.averageEfficiency > 90 ? 'excellent' : aggregatedStats.averageEfficiency > 80 ? 'good' : aggregatedStats.averageEfficiency > 70 ? 'average' : 'below average'}. Weather conditions and maintenance can impact efficiency.`}
                   />
                 </div>
@@ -871,12 +893,12 @@ const WindProduction = () => {
                 transition={{ delay: 0.2 }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <Settings className="w-5 h-5 text-blue-500" />
+                  <Settings className="w-5 h-5 text-yellow-500" />
                   <h3 className="text-lg font-medium">CO₂ Savings</h3>
                   <InfoTooltip 
                     title="CO₂ Savings"
-                    explanation="The estimated amount of carbon dioxide emissions avoided by using wind energy instead of fossil fuels."
-                    interpretation={`Your wind turbines saved approximately ${aggregatedStats.co2Saved.toFixed(1)} tons of CO₂ emissions during this period. This is equivalent to taking about ${Math.round(aggregatedStats.co2Saved * 5)} cars off the road for a day.`}
+                    explanation="The estimated amount of carbon dioxide emissions avoided by using solar energy instead of fossil fuels."
+                    interpretation={`Your solar panels saved approximately ${aggregatedStats.co2Saved.toFixed(1)} tons of CO₂ emissions during this period. This is equivalent to taking about ${Math.round(aggregatedStats.co2Saved * 5)} cars off the road for a day.`}
                   />
                 </div>
                 <div className="flex items-baseline gap-2">
@@ -900,12 +922,12 @@ const WindProduction = () => {
                 className="w-full p-6 flex justify-between items-center border-b"
               >
                 <div className="flex items-center gap-3">
-                  <Info className="w-5 h-5 text-blue-500" />
+                  <Info className="w-5 h-5 text-yellow-500" />
                   <h3 className="text-xl font-semibold">Financial Details</h3>
                   <InfoTooltip 
                     title="Financial Details"
-                    explanation="A detailed breakdown of financial metrics for your wind energy production during the selected period."
-                    interpretation="This information helps you understand the economic performance of your wind turbines, including revenue, average prices, and savings from smart production management."
+                    explanation="A detailed breakdown of financial metrics for your solar energy production during the selected period."
+                    interpretation="This information helps you understand the economic performance of your solar panels, including revenue, average prices, and savings from smart production management."
                     position="right"
                   />
                 </div>
@@ -939,4 +961,4 @@ const WindProduction = () => {
   );
 };
 
-export default WindProduction; 
+export default SolarProduction; 

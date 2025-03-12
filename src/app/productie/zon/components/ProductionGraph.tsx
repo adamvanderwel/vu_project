@@ -13,7 +13,7 @@ import {
 // Generate realistic solar power data for multiple days
 export const allDaysData = [
   { 
-    date: '27 feb 2024',
+    date: '27 Feb 2024',
     data: Array.from({ length: 24 }, (_, i) => {
       // Solar production follows a bell curve during daylight hours
       const hour = i;
@@ -41,7 +41,7 @@ export const allDaysData = [
     })
   },
   { 
-    date: '28 feb 2024',
+    date: '28 Feb 2024',
     data: Array.from({ length: 24 }, (_, i) => {
       const hour = i;
       const isDaylight = hour >= 8 && hour <= 17;
@@ -74,7 +74,7 @@ export const allDaysData = [
     })
   },
   { 
-    date: '29 feb 2024',
+    date: '29 Feb 2024',
     data: Array.from({ length: 24 }, (_, i) => {
       const hour = i;
       const isDaylight = hour >= 8 && hour <= 17;
@@ -107,49 +107,49 @@ export const allDaysData = [
 
 // Production events for each day
 export const productionEvents = {
-  '27 feb 2024': [
+  '27 Feb 2024': [
     {
       time: '13:00',
-      duration: '2 uur',
+      duration: '2 hours',
       impact: -2.5,
-      reason: 'TenneT balanceringsverzoek',
-      description: 'Vrijwillige productieverlaging op verzoek van TenneT voor netbalancering tijdens piek zonne-uren.',
+      reason: 'TenneT Balancing Request',
+      description: 'Voluntary production reduction at TenneT\'s request for grid balancing during peak solar hours.',
       type: 'grid',
     },
   ],
-  '28 feb 2024': [
+  '28 Feb 2024': [
     {
       time: '11:00',
-      duration: '4 uur',
+      duration: '4 hours',
       impact: -4.0,
-      reason: 'Netcongestie & Negatieve Prijzen',
-      description: 'Productiebeperking vanwege lokale netcongestie en negatieve elektriciteitsprijzen tijdens piekproductie.',
+      reason: 'Grid Congestion & Negative Prices',
+      description: 'Production limitation due to local grid congestion and negative electricity prices during peak production.',
       type: 'grid',
     },
     {
       time: '15:30',
-      duration: '2 uur',
+      duration: '2 hours',
       impact: -1.8,
       reason: 'Dynamic Curtailment',
-      description: 'Slimme sturing toegepast voor optimalisatie van netbelasting en marktprijzen.',
+      description: 'Smart control applied for grid load and market price optimization.',
       type: 'grid',
     },
   ],
-  '29 feb 2024': [
+  '29 Feb 2024': [
     {
       time: '09:00',
-      duration: '3 uur',
+      duration: '3 hours',
       impact: -1.2,
-      reason: 'Omvormer Onderhoud',
-      description: 'Gepland onderhoud aan omvormers en monitoring systemen.',
+      reason: 'Inverter Maintenance',
+      description: 'Planned maintenance on inverters and monitoring systems.',
       type: 'maintenance',
     },
     {
       time: '12:00',
-      duration: '4 uur',
+      duration: '4 hours',
       impact: -3.5,
-      reason: 'Bewolking',
-      description: 'Verminderde productie door zware bewolking en regenval.',
+      reason: 'Heavy Cloud Cover',
+      description: 'Reduced production due to heavy cloud cover and rainfall.',
       type: 'weather',
     },
   ],
@@ -164,7 +164,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
 
   return (
     <div className="bg-white rounded-lg p-6">
-      <h3 className="text-xl font-semibold mb-6">Productie Overzicht</h3>
+      <h3 className="text-xl font-semibold mb-6">Production Overview</h3>
       
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
@@ -182,14 +182,14 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               yAxisId="power"
               domain={[0, 12]}
               tick={{ fill: '#666' }}
-              label={{ value: 'Productie (MW)', angle: -90, position: 'insideLeft', fill: '#666' }}
+              label={{ value: 'Production (MW)', angle: -90, position: 'insideLeft', fill: '#666' }}
             />
             <YAxis
               yAxisId="price"
               orientation="right"
               domain={[-20, 80]}
               tick={{ fill: '#666' }}
-              label={{ value: 'Prijs (€/MWh)', angle: 90, position: 'insideRight', fill: '#666' }}
+              label={{ value: 'Price (€/MWh)', angle: 90, position: 'insideRight', fill: '#666' }}
             />
             <Tooltip
               contentStyle={{
@@ -198,8 +198,8 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
                 borderRadius: '4px',
               }}
               formatter={(value: number, name: string) => {
-                if (name === 'price') return [`€${value}/MWh`, 'Prijs'];
-                return [`${value} MW`, name === 'actualProduction' ? 'Actueel' : 'Potentieel'];
+                if (name === 'price') return [`€${value}/MWh`, 'Price'];
+                return [`${value} MW`, name === 'actualProduction' ? 'Actual' : 'Potential'];
               }}
             />
             <Legend />
@@ -209,7 +209,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               dataKey="potentialProduction"
               stroke="#94A3B8"
               strokeDasharray="5 5"
-              name="Potentieel"
+              name="Potential"
               dot={false}
             />
             <Line
@@ -217,7 +217,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               type="monotone"
               dataKey="actualProduction"
               stroke="#EAB308"
-              name="Actueel"
+              name="Actual"
               dot={false}
             />
             <Line
@@ -225,7 +225,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               type="monotone"
               dataKey="price"
               stroke="#22C55E"
-              name="Prijs"
+              name="Price"
               dot={false}
             />
           </LineChart>
@@ -233,4 +233,4 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
       </div>
     </div>
   );
-}; 
+};

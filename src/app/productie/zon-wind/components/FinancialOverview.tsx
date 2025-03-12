@@ -347,9 +347,12 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
 
   return (
     <div className="bg-white rounded-lg p-6">
-      <h3 className="text-xl font-semibold mb-6">
-        {useMultipleDays ? `Financial Overview (${selectedDates!.length} days)` : 'Financial Overview'}
-      </h3>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-semibold flex items-center gap-2">
+          <BarChart3 className="w-6 h-6 text-yellow-500" />
+          Financial Performance
+        </h3>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <motion.div
@@ -395,11 +398,11 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
           className="bg-gray-50 rounded-lg p-4"
         >
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-blue-500" />
+            <Zap className="w-5 h-5 text-yellow-500" />
             <span className="text-gray-600">Grid Services Revenue</span>
           </div>
           <div className="text-2xl font-semibold">€{metrics.gridServicesRevenue.toFixed(2)}</div>
@@ -415,7 +418,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
           TenneT Compensation & Curtailment
           <InfoTooltip 
             title="TenneT Compensation"
-            explanation="When your turbines are curtailed due to grid constraints, TenneT provides financial compensation for the lost production."
+            explanation="When your solar panels are curtailed due to grid constraints, TenneT provides financial compensation for the lost production."
             interpretation="This section shows the historical data of curtailment events and the compensation you've received from TenneT during this period."
             position="right"
           />

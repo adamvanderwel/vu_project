@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Info, AlertTriangle, Battery, Wind, Sun } from 'lucide-react';
+import { Info, AlertTriangle, Battery, Wind, Sun, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 // Animation variants
 const fadeInUp = {
@@ -98,7 +99,7 @@ const LiveStatusCard = ({ currentStatus }: { currentStatus: any }) => (
               transition={{ duration: 0.2 }}
             >
               <p className="text-sm text-gray-600">{item.title}</p>
-              <p className="text-2xl font-semibold">{item.value}</p>
+              <p className="text-xl md:text-2xl font-semibold">{item.value}</p>
               <p className="text-sm text-gray-500">{item.subtitle}</p>
             </motion.div>
           ))}
@@ -110,39 +111,39 @@ const LiveStatusCard = ({ currentStatus }: { currentStatus: any }) => (
 
 const ReductionInsightsCard = ({ reductionData }: { reductionData: any }) => (
   <motion.div variants={fadeInUp} transition={fadeInUpTransition}>
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Production Adjustment Insights</CardTitle>
+    <Card className="w-full h-full">
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-lg md:text-2xl">Production Adjustment Insights</CardTitle>
       </CardHeader>
-      <CardContent>
-        <motion.div className="space-y-4">
+      <CardContent className="p-4 md:p-6 pt-0">
+        <motion.div className="space-y-3 md:space-y-4">
           {reductionData.active && (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Alert className="bg-blue-50">
+              <Alert className="bg-blue-50 text-sm">
                 <AlertTriangle className="w-4 h-4" />
-                <AlertTitle>Active Production Adjustment</AlertTitle>
-                <AlertDescription>
+                <AlertTitle className="text-sm font-medium">Active Production Adjustment</AlertTitle>
+                <AlertDescription className="text-xs md:text-sm">
                   Production reduced by {reductionData.reductionAmount}MW ({reductionData.reductionPercentage}%)
                 </AlertDescription>
               </Alert>
             </motion.div>
           )}
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
           >
             <motion.div 
-              className="p-4 bg-gray-50 rounded-lg"
+              className="p-3 md:p-4 bg-gray-50 rounded-lg"
               variants={fadeInUp}
               whileHover={{ scale: 1.02 }}
             >
-              <h3 className="font-semibold mb-2">Reason for Adjustment</h3>
+              <h3 className="font-semibold mb-2 text-sm md:text-base">Reason for Adjustment</h3>
               <ul className="space-y-2">
                 {reductionData.reasons.map((reason: string, index: number) => (
                   <motion.li 
@@ -152,18 +153,18 @@ const ReductionInsightsCard = ({ reductionData }: { reductionData: any }) => (
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="mt-1 w-2 h-2 rounded-full bg-blue-500" />
-                    <span className="text-sm">{reason}</span>
+                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <span className="text-xs md:text-sm">{reason}</span>
                   </motion.li>
                 ))}
               </ul>
             </motion.div>
             <motion.div 
-              className="p-4 bg-gray-50 rounded-lg"
+              className="p-3 md:p-4 bg-gray-50 rounded-lg"
               variants={fadeInUp}
               whileHover={{ scale: 1.02 }}
             >
-              <h3 className="font-semibold mb-2">Benefits Generated</h3>
+              <h3 className="font-semibold mb-2 text-sm md:text-base">Benefits Generated</h3>
               <ul className="space-y-2">
                 {reductionData.benefits.map((benefit: string, index: number) => (
                   <motion.li 
@@ -173,8 +174,8 @@ const ReductionInsightsCard = ({ reductionData }: { reductionData: any }) => (
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="mt-1 w-2 h-2 rounded-full bg-green-500" />
-                    <span className="text-sm">{benefit}</span>
+                    <div className="mt-1 w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span className="text-xs md:text-sm">{benefit}</span>
                   </motion.li>
                 ))}
               </ul>
@@ -192,27 +193,48 @@ const ProductionChart = ({ data }: { data: any }) => (
       <CardHeader>
         <CardTitle>Production Overview</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0 sm:p-6">
         <motion.div 
-          className="h-96"
+          className="h-[300px] md:h-96 w-full overflow-hidden"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <LineChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis yAxisId="left" />
-              <YAxis yAxisId="right" orientation="right" />
-              <Tooltip />
-              <Legend />
+              <XAxis 
+                dataKey="time" 
+                tick={{ fontSize: 12 }}
+                interval="preserveStartEnd"
+              />
+              <YAxis 
+                yAxisId="left" 
+                tick={{ fontSize: 12 }}
+                width={40}
+              />
+              <YAxis 
+                yAxisId="right" 
+                orientation="right" 
+                tick={{ fontSize: 12 }}
+                width={40}
+              />
+              <Tooltip 
+                contentStyle={{ fontSize: '12px' }}
+                itemStyle={{ fontSize: '12px' }}
+              />
+              <Legend 
+                wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                iconSize={8}
+              />
               <Line 
                 yAxisId="left"
                 type="monotone" 
                 dataKey="actualProduction" 
                 stroke="#2563eb" 
                 name="Actual Production (MW)"
+                strokeWidth={2}
+                dot={false}
               />
               <Line 
                 yAxisId="left"
@@ -221,6 +243,8 @@ const ProductionChart = ({ data }: { data: any }) => (
                 stroke="#94a3b8" 
                 strokeDasharray="5 5" 
                 name="Potential Production (MW)"
+                strokeWidth={2}
+                dot={false}
               />
               <Line 
                 yAxisId="right"
@@ -228,6 +252,8 @@ const ProductionChart = ({ data }: { data: any }) => (
                 dataKey="marketPrice" 
                 stroke="#22c55e" 
                 name="Market Price (€/MWh)"
+                strokeWidth={2}
+                dot={false}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -239,13 +265,13 @@ const ProductionChart = ({ data }: { data: any }) => (
 
 const FinancialImpactCard = ({ financialData }: { financialData: any }) => (
   <motion.div variants={fadeInUp} transition={fadeInUpTransition}>
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Financial Impact</CardTitle>
+    <Card className="w-full h-full">
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-lg md:text-2xl">Financial Impact</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6 pt-0">
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4"
           variants={staggerContainer}
           initial="initial"
           animate="animate"
@@ -269,14 +295,14 @@ const FinancialImpactCard = ({ financialData }: { financialData: any }) => (
           ].map((item, index) => (
             <motion.div
               key={index}
-              className="p-4 bg-gray-50 rounded-lg"
+              className="p-3 md:p-4 bg-gray-50 rounded-lg"
               variants={fadeInUp}
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
             >
-              <p className="text-sm text-gray-600">{item.title}</p>
-              <p className="text-2xl font-semibold">{item.value}</p>
-              <p className="text-sm text-gray-500">{item.subtitle}</p>
+              <p className="text-xs md:text-sm text-gray-600">{item.title}</p>
+              <p className="text-lg md:text-2xl font-semibold truncate">{item.value}</p>
+              <p className="text-xs md:text-sm text-gray-500">{item.subtitle}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -328,11 +354,71 @@ export default function Home() {
   });
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
-      <LiveStatusCard currentStatus={currentStatus} />
-      <ReductionInsightsCard reductionData={reductionData} />
-      <ProductionChart data={productionData} />
-      <FinancialImpactCard financialData={financialData} />
+    <div className="p-2 sm:p-4 md:p-8 max-w-7xl mx-auto space-y-4 md:space-y-6">
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        {[
+          {
+            title: "Current Production",
+            value: `${currentStatus.currentProduction}MW`,
+            subtitle: `of ${currentStatus.maxCapacity}MW capacity`
+          },
+          {
+            title: "Market Price",
+            value: `€${currentStatus.marketPrice}/MWh`,
+            subtitle: "Current market rate"
+          },
+          {
+            title: "Production Status",
+            value: currentStatus.status,
+            subtitle: currentStatus.statusDescription
+          }
+        ].map((item, index) => (
+          <motion.div
+            key={index}
+            className="p-3 sm:p-4 bg-gray-50 rounded-lg"
+            variants={fadeInUp}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <p className="text-sm text-gray-600">{item.title}</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold truncate">{item.value}</p>
+            <p className="text-xs sm:text-sm text-gray-500">{item.subtitle}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+        <ReductionInsightsCard reductionData={reductionData} />
+        <FinancialImpactCard financialData={financialData} />
+      </div>
+
+      <div className="w-full -mx-2 sm:mx-0">
+        <ProductionChart data={productionData} />
+      </div>
+
+      <motion.div
+        className="flex justify-center mt-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <Link href="/productie/wind">
+          <motion.button
+            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Wind className="w-5 h-5" />
+            Wind Production Details
+            <ArrowRight className="w-4 h-4" />
+          </motion.button>
+        </Link>
+      </motion.div>
     </div>
   );
 }

@@ -17,7 +17,7 @@ import { nl } from 'date-fns/locale';
 import { InfoTooltip } from './InfoTooltip';
 import {
   AlertTriangle,
-  Wind,
+  Sun,
   Zap,
   Cloud,
   Clock,
@@ -51,23 +51,23 @@ const eventTypes = [
     color: 'text-purple-500',
     bgColor: 'bg-purple-100',
     descriptions: [
-      'High wind speeds exceeding safety threshold - automatic reduction',
-      'Rapid wind direction change causing yaw misalignment',
-      'Turbulence from weather front reducing effective power capture',
-      'Low temperatures affecting turbine performance'
+      'Cloud cover reducing solar irradiance',
+      'High temperature reducing panel efficiency',
+      'Dust or sand on panels affecting performance',
+      'Heavy rain or snow limiting solar exposure'
     ]
   },
   {
     type: 'maintenance',
     name: 'Maintenance',
-    icon: Wind,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-100',
+    icon: Sun,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-100',
     descriptions: [
-      'Scheduled preventive maintenance - blade inspection',
-      'Unscheduled maintenance - sensor recalibration',
-      'Software update requiring partial power reduction',
-      'Gear box inspection after vibration alert'
+      'Scheduled panel cleaning and inspection',
+      'Inverter maintenance causing output reduction',
+      'Panel array reorientation for optimal performance',
+      'Connector and wiring inspection'
     ]
   },
   {
@@ -77,10 +77,10 @@ const eventTypes = [
     color: 'text-green-500',
     bgColor: 'bg-green-100',
     descriptions: [
-      'Bird migration protection - temporary reduction',
-      'Noise reduction during evening hours - community agreement',
-      'Ice detection causing automatic power reduction',
-      'Shadow flicker mitigation for nearby properties'
+      'Wildlife protection measures activated',
+      'Shadow management for neighboring properties',
+      'Heat dissipation mode during extreme temperatures',
+      'Environmental compliance during sensitive periods'
     ]
   },
   {
@@ -90,9 +90,9 @@ const eventTypes = [
     color: 'text-red-500',
     bgColor: 'bg-red-100',
     descriptions: [
-      'Transformer temperature high - automatic power reduction',
+      'Inverter temperature high - automatic power reduction',
       'Control system fault requiring manual intervention',
-      'Pitch system calibration causing temporary limitation',
+      'DC-AC conversion issue limiting output capacity',
       'Grid synchronization issue requiring power reduction'
     ]
   }
@@ -149,57 +149,35 @@ type ProductionEventsMap = {
 
 // First, define the function to generate realistic day data
 const generateRealisticDayData = (date: Date, baseProduction = 8, variability = 0.3) => {
-  // Create a weather pattern for the day (common to all hours)
-  const dayWeatherPattern = Math.random();
-  const isStormy = dayWeatherPattern > 0.75;
-  const isCalm = dayWeatherPattern < 0.2;
-  const hasNegativePrices = Math.random() > 0.65;
+  // First, we'll determine the pattern for this day (stormy, calm, or normal)
+  const dayPattern = Math.random();
+  const isStormy = dayPattern < 0.2; // 20% chance of stormy/cloudy day
+  const isCalm = dayPattern > 0.8; // 20% chance of calm/clear day
+  const hasNegativePrices = Math.random() < 0.15; // 15% chance of negative prices during night
   
-  // Determine how many events to create (for demos, create more events)
-  // For demonstration purposes, we'll create more events than in a real system
-  const eventsToCreate = 5 + Math.floor(Math.random() * 6); // 5-10 events
+  // Generate events for this day
+  const events: ProductionEvent[] = [];
   
-  // Pick random hours for events, ensuring good spread
-  const eventHours = new Set<number>(); 
+  // Deterministic but different event for each date
+  // Use the day of month to seed the event generation
+  const dayOfMonth = date.getDate();
   
-  // Always include hours 2, 9, and 14 for demonstration consistency
-  [2, 9, 14].forEach(hour => eventHours.add(hour));
-  
-  // Add additional random hours
-  while (eventHours.size < eventsToCreate) {
-    const hour = Math.floor(Math.random() * 24);
-    eventHours.add(hour);
+  // Add realistic events based on time of day and weather patterns
+  if (isStormy) {
+    // Cloud cover and weather events during stormy days
+    const stormHour = 8 + Math.floor(Math.random() * 8); // Between 8 AM and 4 PM
+    const stormSeverity = 1.5 + Math.random() * 1.5; // More severe impact
+    events.push({
+      time: `${String(stormHour).padStart(2, '0')}:00`,
+      duration: `${2 + Math.floor(Math.random() * 4)} hours`,
+      impact: -(stormSeverity).toFixed(1),
+      reason: "Weather Event",
+      description: "Cloud cover reducing solar irradiance below optimal threshold",
+      type: "weather",
+      hour: stormHour
+    });
   }
   
-  // Generate events for each selected hour
-  const events = Array.from(eventHours).map(hour => {
-    // Different event types for different parts of the day
-    let eventSeverity: number;
-    
-    // Set severity based on time of day and conditions
-    if (hour >= 22 || hour <= 5) {
-      // Night hours - often low demand related
-      eventSeverity = hasNegativePrices ? 1.5 : 0.7;
-    } else if (hour >= 10 && hour <= 16) {
-      // Peak hours - often environmental or technical
-      eventSeverity = isStormy ? 2.0 : 1.0;
-    } else {
-      // Shoulder hours - often maintenance
-      eventSeverity = 0.8;
-    }
-    
-    // Create a simple event
-    return {
-      time: `${String(hour).padStart(2, '0')}:00`,
-      duration: `${1 + Math.floor(Math.random() * 3)} hour${Math.random() > 0.5 ? 's' : ''}`,
-      impact: -eventSeverity.toFixed(1),
-      reason: getRandomEventReason(),
-      description: getRandomEventDescription(),
-      type: getRandomEventType(),
-      hour: hour
-    };
-  });
-
   // Create at least one TenneT curtailment event for EVERY day to ensure it's always present
   const curtailmentHour = events.find(e => e.hour === 11)?.hour || 11;
   
@@ -224,6 +202,98 @@ const generateRealisticDayData = (date: Date, baseProduction = 8, variability = 
     type: "grid",
     hour: curtailmentHour
   });
+  
+  // Add at least one maintenance event (blue) each day for better variety
+  const maintenanceHour = 8 + Math.floor(Math.random() * 6); // Between 8 AM and 2 PM
+  if (!events.some(e => e.hour === maintenanceHour)) {
+    const maintenanceTypes = [
+      {
+        reason: "Routine Maintenance",
+        description: "Scheduled panel cleaning operation"
+      },
+      {
+        reason: "Performance Optimization",
+        description: "Panel angle optimization for seasonal adjustment"
+      },
+      {
+        reason: "Maintenance",
+        description: "Inverter maintenance and calibration"
+      }
+    ];
+    
+    const maintenance = maintenanceTypes[Math.floor(Math.random() * maintenanceTypes.length)];
+    events.push({
+      time: `${String(maintenanceHour).padStart(2, '0')}:00`,
+      duration: `${1 + Math.floor(Math.random() * 2)} hours`,
+      impact: -((0.5 + Math.random() * 0.5).toFixed(1)),
+      reason: maintenance.reason,
+      description: maintenance.description,
+      type: "maintenance",
+      hour: maintenanceHour
+    });
+  }
+  
+  // Add an environmental event (green) for each day
+  const environmentalHour = 14 + Math.floor(Math.random() * 6); // Between 2 PM and 8 PM
+  if (!events.some(e => e.hour === environmentalHour)) {
+    const environmentalTypes = [
+      {
+        reason: "Environmental",
+        description: "Shadow management for neighboring properties"
+      },
+      {
+        reason: "Wildlife Protection",
+        description: "Wildlife corridor protection around solar arrays"
+      },
+      {
+        reason: "Weather Safety System",
+        description: "Storm protection system activated to secure panel arrays"
+      }
+    ];
+    
+    const environmental = environmentalTypes[Math.floor(Math.random() * environmentalTypes.length)];
+    events.push({
+      time: `${String(environmentalHour).padStart(2, '0')}:00`,
+      duration: `${2 + Math.floor(Math.random() * 2)} hours`,
+      impact: -((0.8 + Math.random() * 0.7).toFixed(1)),
+      reason: environmental.reason,
+      description: environmental.description,
+      type: "environmental",
+      hour: environmentalHour
+    });
+  }
+  
+  // Add a weather event (purple) for cloudy or stormy days
+  if (isStormy || Math.random() < 0.6) {
+    const weatherHour = 10 + Math.floor(Math.random() * 6); // Between 10 AM and 4 PM
+    if (!events.some(e => e.hour === weatherHour)) {
+      const weatherTypes = [
+        {
+          reason: "Weather Event",
+          description: "Cloud cover reducing solar irradiance below optimal threshold"
+        },
+        {
+          reason: "Solar Irradiance Issue",
+          description: "High temperature affecting panel efficiency"
+        },
+        {
+          reason: "Weather Event",
+          description: "Heavy rain or snow limiting solar exposure"
+        }
+      ];
+      
+      const weather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+      events.push({
+        time: `${String(weatherHour).padStart(2, '0')}:00`,
+        duration: `${2 + Math.floor(Math.random() * 3)} hours`,
+        impact: -((1.0 + Math.random() * 0.4).toFixed(1)),
+        reason: weather.reason,
+        description: weather.description,
+        type: "weather",
+        hour: weatherHour
+      });
+    }
+  }
   
   // Add extra curtailment events to specific dates to create more variation and test scenarios
   // More curtailment events on weekends and specific dates when grid congestion is common
@@ -258,7 +328,7 @@ const generateRealisticDayData = (date: Date, baseProduction = 8, variability = 
       const curtailmentDescriptions = [
         "Grid operator TenneT requested power curtailment due to transmission congestion",
         "TenneT issued a congestion management order due to regional grid constraints",
-        "Wind production reduced at TenneT's request - compensated curtailment",
+        "Solar production reduced at TenneT's request - compensated curtailment",
         "Grid stability measures required temporary production reduction per TenneT"
       ];
       
@@ -276,58 +346,29 @@ const generateRealisticDayData = (date: Date, baseProduction = 8, variability = 
     });
   }
   
-  // Helper functions for event generation
-  function getRandomEventType() {
-    // Increase likelihood of grid events to better demonstrate the financial compensation features
-    const types = ['grid', 'grid', 'weather', 'maintenance', 'environmental', 'technical'];
-    return types[Math.floor(Math.random() * types.length)];
-  }
-  
-  function getRandomEventReason() {
-    const reasons = {
-      'grid': ['Grid Constraint', 'Frequency Regulation', 'Grid Curtailment Order', 'TenneT Transmission Congestion'],
-      'weather': ['Wind Speed Issue', 'Environmental Condition'],
-      'maintenance': ['Routine Maintenance', 'Performance Optimization'],
-      'environmental': ['Wildlife Protection', 'Weather Safety System'],
-      'technical': ['System Alert', 'Component Monitoring']
-    };
-    const type = getRandomEventType();
-    const typeReasons = reasons[type as keyof typeof reasons];
-    return typeReasons[Math.floor(Math.random() * typeReasons.length)];
-  }
-  
-  function getRandomEventDescription() {
-    const descriptions = [
-      'Grid operator requested power reduction due to local congestion',
-      'Negative electricity prices triggered automatic power reduction',
-      'High wind speeds exceeding safety threshold - automatic reduction',
-      'Scheduled preventive maintenance - blade inspection',
-      'Bird migration protection - temporary reduction',
-      'Transformer temperature high - automatic power reduction'
-    ];
-    return descriptions[Math.floor(Math.random() * descriptions.length)];
-  }
-  
   // Basic hourly pattern with natural variations
   const hourlyData = Array.from({ length: 24 }, (_, hour) => {
-    // Time of day variations - wind tends to be stronger in afternoon/evening
-    const timeOfDayFactor = 1 + 0.3 * Math.sin((hour - 6) * (Math.PI / 12));
+    // Time of day variations - solar tends to be stronger in midday
+    const timeOfDayFactor = 1 + 0.5 * Math.sin((hour - 12) * (Math.PI / 12));
     
-    // Base wind conditions with natural patterns
+    // Base solar conditions with natural patterns
     let potentialProduction = baseProduction * timeOfDayFactor;
     
     // Apply daily weather pattern
     if (isStormy) {
-      if (hour > 12 && hour < 20) {
-        potentialProduction *= 1.4; // Strong winds in afternoon/evening during stormy days
-      }
+      potentialProduction *= 0.6; // Less solar production on stormy/cloudy days
     } else if (isCalm) {
-      potentialProduction *= 0.7; // Less wind on calm days
+      potentialProduction *= 1.2; // More production on calm clear days
     }
     
     // Add some natural randomness
     potentialProduction += (Math.random() * variability * 2 - variability) * baseProduction;
     potentialProduction = Math.max(0.5, potentialProduction); // Ensure minimum production
+    
+    // Night hours have very low or zero production
+    if (hour < 6 || hour > 20) {
+      potentialProduction = potentialProduction * Math.max(0, (hour < 6 ? hour / 6 : (24 - hour) / 4)) * 0.1;
+    }
     
     // Calculate actual production - start with full potential
     let actualProduction = potentialProduction;
@@ -341,10 +382,10 @@ const generateRealisticDayData = (date: Date, baseProduction = 8, variability = 
     }
     
     // Generate electricity price based on time of day
-    // Prices tend to be lower at night and peak during evening demand
+    // Prices tend to be higher during peak demand periods (morning and evening)
     let price = 50 + 20 * Math.sin((hour - 12) * (Math.PI / 12));
     
-    // Negative prices sometimes occur at night with excess wind
+    // Negative prices sometimes occur at night with excess production
     if (hasNegativePrices && (hour >= 0 && hour <= 5)) {
       price = -10 - Math.random() * 20;
     }
@@ -775,7 +816,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDates 
                 event{selectedEvent.events.length !== 1 ? 's' : ''} on this day
               </div>
               <button 
-                onClick={() => setShowDayGraph(selectedEvent.dateObj)}
+                onClick={() => setSelectedEvent(null)}
                 className="group relative px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-3 transition-all duration-200 shadow-sm hover:shadow-md overflow-hidden"
               >
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
@@ -1429,22 +1470,12 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDates 
           </div>
           
           {/* Add legend at the bottom */}
-          <div className="flex items-center gap-8 mt-4 pt-4 border-t border-gray-100 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span>Actual Production</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-gray-400"></div>
-              <span>Potential Production</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <span>Electricity Price</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="px-0.5 text-red-500">⚠</div>
-              <span>Production Event</span>
+          <div className="flex items-center justify-center mt-2 text-sm">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-yellow-500"></div>
+              <div className="text-sm text-gray-500 flex items-center">
+                Actual Production
+              </div>
             </div>
           </div>
         </div>
@@ -1459,8 +1490,8 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDates 
         <InfoTooltip 
           title="Production Overview"
           explanation={isHourlyView 
-            ? "This graph shows hourly production data for the selected day, including actual production, potential production, and electricity prices." 
-            : "This graph shows daily average production data across the selected date range, including actual production, potential production, and electricity prices."
+            ? "The yellow line shows your actual production, while the gray dashed line shows the potential production based on available solar irradiance. The green line shows market electricity prices. Click on warning markers to see event details." 
+            : "Each bar shows daily average production. Yellow represents actual production, while gray represents potential production. Click on any day to see hourly details."
           }
           interpretation={isHourlyView
             ? "The blue line shows your actual production, while the gray dashed line shows the potential production based on available wind. The green line shows market electricity prices. Click on warning markers to see event details."
@@ -1484,8 +1515,8 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDates 
             <span>Actual Production</span>
             <InfoTooltip 
               title="Actual Production"
-              explanation="The amount of electricity your wind turbines actually produced during this period."
-              interpretation="Lower than potential production can be due to grid curtailment, maintenance, or turbine efficiency."
+              explanation="The amount of electricity your solar panels actually produced during this period."
+              interpretation="Lower than potential production can be due to grid curtailment, maintenance, or panel efficiency."
               position="top"
             />
           </div>
@@ -1494,8 +1525,8 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDates 
             <span>Potential Production</span>
             <InfoTooltip 
               title="Potential Production"
-              explanation="The maximum amount of electricity your turbines could have produced given the wind conditions."
-              interpretation="The gap between potential and actual represents opportunities for optimization or unavoidable constraints."
+              explanation="The maximum amount of electricity your panels could have produced given the solar irradiance."
+              interpretation="This is calculated based on ideal conditions without any constraints."
               position="top"
             />
           </div>
@@ -1515,7 +1546,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDates 
             <InfoTooltip 
               title="Production Event"
               explanation="An event that caused production to be less than potential during this period."
-              interpretation="Click on these markers to see what caused your turbines to produce less than they could have."
+              interpretation="Click on these markers to see what caused your panels to produce less than they could have."
               position="top"
             />
           </div>

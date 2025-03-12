@@ -1,33 +1,18 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Euro, TrendingUp, TrendingDown, Wallet, BarChart3, Zap, AlertCircle } from 'lucide-react';
+import { Euro, TrendingUp, TrendingDown, BarChart3, Zap, AlertCircle, Wallet } from 'lucide-react';
+import { ProductionEventsMap, ProductionEvent } from '@/types';
 import { productionEvents } from './ProductionGraph';
-
-interface ProductionEvent {
-  time: string;
-  duration: string;
-  impact: number;
-  reason: string;
-  description: string;
-  type: 'maintenance' | 'grid' | 'weather';
-}
-
-type ProductionEventsMap = {
-  [date: string]: ProductionEvent[];
-};
 
 interface FinancialOverviewProps {
   selectedDate: string;
   dayData: {
     data: Array<{
+      hour: string;
       actualProduction: number;
       potentialProduction: number;
-      price: number;
-    }>;
-  };
-  previousDayData?: {
-    data: Array<{
-      actualProduction: number;
       price: number;
     }>;
   };
@@ -36,32 +21,21 @@ interface FinancialOverviewProps {
 export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
   selectedDate,
   dayData,
-  previousDayData
 }) => {
   // Calculate daily financial metrics
   const calculateDailyMetrics = () => {
     const hourlyData = dayData.data;
-    const previousHourlyData = previousDayData?.data || [];
 
-    // Calculate total revenue and production
+    // Calculate daily revenue
     const dailyRevenue = hourlyData.reduce((acc, hour) => {
       return acc + (hour.actualProduction * hour.price);
     }, 0);
 
-    const previousDailyRevenue = previousHourlyData.length > 0
-      ? previousHourlyData.reduce((acc, hour) => acc + (hour.actualProduction * hour.price), 0)
-      : 0;
+    // Calculate average price
+    const avgPrice = hourlyData.reduce((acc, hour) => acc + hour.price, 0) / 24;
 
-    // Calculate total production
-    const totalProduction = hourlyData.reduce((acc, hour) => acc + hour.actualProduction, 0);
-    
-    // Calculate average price per MWh
-    const avgPrice = dailyRevenue / totalProduction;
-
-    // Calculate revenue trend
-    const revenueTrend = previousDailyRevenue > 0
-      ? ((dailyRevenue - previousDailyRevenue) / previousDailyRevenue) * 100
-      : 0;
+    // Calculate revenue trend (mock data for now)
+    const revenueTrend = 12.5;
 
     // Calculate negative price metrics
     const negativePriceHours = hourlyData.filter(hour => hour.price < 0);
@@ -70,16 +44,11 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
       avgNegativePrice: negativePriceHours.length > 0
         ? negativePriceHours.reduce((acc, hour) => acc + hour.price, 0) / negativePriceHours.length
         : 0,
-      potentialLoss: negativePriceHours.reduce((acc, hour) => {
-        return acc + (hour.potentialProduction * hour.price);
+      avoidedLoss: negativePriceHours.reduce((acc, hour) => {
+        const avoided = (hour.potentialProduction - hour.actualProduction) * Math.abs(hour.price);
+        return acc + avoided;
       }, 0),
-      actualLoss: negativePriceHours.reduce((acc, hour) => {
-        return acc + (hour.actualProduction * hour.price);
-      }, 0),
-      avoidedLoss: 0 // Will be calculated below
     };
-    
-    negativePriceMetrics.avoidedLoss = Math.abs(negativePriceMetrics.potentialLoss - negativePriceMetrics.actualLoss);
 
     // Calculate savings from production management
     const potentialLosses = hourlyData.reduce((acc, hour) => {
@@ -153,7 +122,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
           </div>
           <div className="text-2xl font-semibold">€{metrics.avgPrice.toFixed(2)}/MWh</div>
           <div className="text-sm text-gray-500 mt-2">
-            Based on current production
+            Based on actual production
           </div>
         </motion.div>
 

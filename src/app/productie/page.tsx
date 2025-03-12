@@ -17,9 +17,9 @@ const ProductionOverview = () => {
     {
       type: 'wind',
       icon: Wind,
-      title: 'Windenergie',
+      title: 'Wind Energy',
       assets: 3,
-      status: 'Optimaal',
+      status: 'Optimal',
       production: '32.5 MW',
       availability: '98%',
       href: '/productie/wind',
@@ -27,26 +27,26 @@ const ProductionOverview = () => {
     {
       type: 'solar',
       icon: Sun,
-      title: 'Zonne-energie',
+      title: 'Solar Energy',
       assets: 2,
-      status: 'Goed',
+      status: 'Good',
       production: '10.0 MW',
       availability: '95%',
-      href: '/productie/zon',
+      href: '/productie/zon-wind',
     },
   ];
 
   const recentAlerts = [
     {
       type: 'maintenance',
-      asset: 'Windpark Kubbeweg T1',
-      message: 'Gepland onderhoud op 15 maart',
+      asset: 'Wind Park Kubbeweg T1',
+      message: 'Planned maintenance on March 15',
       severity: 'info',
     },
     {
       type: 'performance',
-      asset: 'Zonnepark Almere',
-      message: 'Productie 15% onder verwachting',
+      asset: 'Solar Park Almere',
+      message: 'Production 15% below expectation',
       severity: 'warning',
     },
   ];
@@ -54,10 +54,10 @@ const ProductionOverview = () => {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-semibold">Live Productie</h1>
+        <h1 className="text-4xl font-semibold">Live Production</h1>
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>Laatste update:</span>
-          <span className="font-medium">28 feb 2024 15:30</span>
+          <span>Last update:</span>
+          <span className="font-medium">28 Feb 2024 15:30</span>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ const ProductionOverview = () => {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg text-gray-600">Totale Productie</h2>
+            <h2 className="text-lg text-gray-600">Total Production</h2>
             <div className="flex items-baseline gap-3 mt-2">
               <span className="text-4xl font-bold">{totalProduction.current}</span>
               <span className="text-xl text-gray-500">/ {totalProduction.target} {totalProduction.unit}</span>
@@ -101,7 +101,7 @@ const ProductionOverview = () => {
               
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div>
-                  <p className="text-sm text-gray-500">Aantal assets</p>
+                  <p className="text-sm text-gray-500">Number of assets</p>
                   <p className="text-lg font-medium">{asset.assets}</p>
                 </div>
                 <div>
@@ -109,11 +109,11 @@ const ProductionOverview = () => {
                   <p className="text-lg font-medium">{asset.status}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Productie</p>
+                  <p className="text-sm text-gray-500">Production</p>
                   <p className="text-lg font-medium">{asset.production}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Beschikbaarheid</p>
+                  <p className="text-sm text-gray-500">Availability</p>
                   <p className="text-lg font-medium">{asset.availability}</p>
                 </div>
               </div>
@@ -124,7 +124,7 @@ const ProductionOverview = () => {
 
       {/* Recent Alerts */}
       <div className="bg-white rounded-lg p-6">
-        <h3 className="text-xl font-semibold mb-4">Recente Meldingen</h3>
+        <h3 className="text-xl font-semibold mb-4">Recent Alerts</h3>
         <div className="space-y-4">
           {recentAlerts.map((alert, index) => (
             <motion.div

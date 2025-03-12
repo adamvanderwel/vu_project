@@ -39,25 +39,25 @@ const predefinedEvents = {
   ],
   weather: [
     {
-      reason: "Wind Speed Issue",
+      reason: "Solar Irradiance Issue",
       descriptions: [
-        "High wind speeds exceeding safety threshold - automatic reduction",
-        "Rapid wind direction change causing yaw misalignment",
-        "Turbulence from weather front reducing effective power capture",
-        "Low wind conditions below optimal generation threshold",
-        "Wind shear affecting blade performance and efficiency",
-        "Gusty conditions triggering safety-based power reduction"
+        "Cloud cover reducing solar irradiance below optimal threshold",
+        "Dust storm affecting panel efficiency and light absorption",
+        "Haze from nearby wildfires reducing solar intensity",
+        "High temperature affecting panel efficiency",
+        "Snow accumulation on panels reducing light absorption",
+        "Heavy rain reducing solar exposure and efficiency"
       ]
     },
     {
       reason: "Environmental Condition",
       descriptions: [
-        "Low temperatures affecting turbine performance",
-        "Heavy rain reducing aerodynamic efficiency",
+        "High temperatures affecting inverter performance",
+        "Heavy rain requiring system protection mode",
         "Thunderstorm in vicinity causing precautionary shutdown",
         "High humidity affecting electronic systems",
         "Dense fog interfering with remote monitoring systems",
-        "Hail storm temporarily disrupting operation"
+        "Dust accumulation reducing panel efficiency"
       ]
     }
   ],
@@ -65,21 +65,21 @@ const predefinedEvents = {
     {
       reason: "Routine Maintenance",
       descriptions: [
-        "Scheduled preventive maintenance - blade inspection",
-        "Unscheduled maintenance - sensor recalibration",
+        "Scheduled panel cleaning operation",
+        "Inverter maintenance and calibration",
         "Software update requiring partial power reduction",
-        "Gear box inspection after vibration alert",
+        "Connection point inspection and maintenance",
         "Annual certification and safety check in progress",
-        "Preventative blade cleaning operation"
+        "Preventative panel alignment adjustment"
       ]
     },
     {
       reason: "Performance Optimization",
       descriptions: [
-        "Pitch system calibration to improve energy capture",
-        "Power curve testing and optimization",
+        "Panel angle optimization for seasonal adjustment",
+        "Power conversion efficiency testing",
         "Control system fine-tuning for improved response",
-        "Nacelle alignment adjustment for optimal performance",
+        "Tracking system calibration for optimal sun exposure",
         "Efficiency testing requiring controlled operation",
         "Remote diagnostic review with manufacturer"
       ]
@@ -89,23 +89,23 @@ const predefinedEvents = {
     {
       reason: "Wildlife Protection",
       descriptions: [
-        "Bird migration protection - temporary reduction",
+        "Wildlife corridor protection around solar arrays",
         "Noise reduction during evening hours - community agreement",
-        "Protected species monitoring causing brief curtailment",
-        "Bat activity detection triggering automated slowdown",
-        "Wildlife corridor restriction during seasonal migration",
+        "Protected species habitat monitoring in solar farm area",
+        "Local ecosystem protection measures during sensitive periods",
+        "Solar farm perimeter environmental buffer management",
         "Environmental compliance monitoring during nesting season"
       ]
     },
     {
       reason: "Weather Safety System",
       descriptions: [
-        "Ice detection causing automatic power reduction",
-        "Shadow flicker mitigation for nearby properties",
+        "Overheating protection mode activated",
+        "Shadow pattern optimization during low sunlight",
         "Lightning protection system activation during storm",
         "Flood risk preventative measures activated",
         "Extreme temperature protective mode engaged",
-        "Air density compensation for optimal performance"
+        "Storm protection system activated to secure panel arrays"
       ]
     }
   ],
@@ -113,23 +113,23 @@ const predefinedEvents = {
     {
       reason: "System Alert",
       descriptions: [
-        "Transformer temperature high - automatic power reduction",
+        "Inverter temperature high - automatic power reduction",
         "Control system fault requiring manual intervention",
-        "Pitch system calibration causing temporary limitation",
+        "DC-AC conversion issue limiting output capacity",
         "Grid synchronization issue requiring power reduction",
-        "Vibration alert triggering precautionary slowdown",
+        "Voltage regulation anomaly causing output limitation",
         "Sensor data anomaly requiring diagnostic mode"
       ]
     },
     {
       reason: "Component Monitoring",
       descriptions: [
-        "Bearing temperature above normal operating range",
-        "Power converter cooling system maintenance required",
-        "Generator slip ring inspection after electrical alert",
-        "Cable tension monitoring system under calibration",
-        "Yaw brake wear detection requiring service",
-        "Hydraulic system pressure fluctuation investigation"
+        "Inverter cooling system operating at reduced capacity",
+        "Power converter requiring maintenance",
+        "Panel connection issues detected in section B4",
+        "Monitoring system calibration in progress",
+        "String failure detected in eastern array",
+        "Junction box temperature fluctuation investigation"
       ]
     }
   ]
@@ -400,7 +400,7 @@ export const ProductionEvents: React.FC<ProductionEventsProps> = ({
         <div className="text-gray-500 text-center py-12 border border-dashed border-gray-200 rounded-lg">
           <AlertTriangle className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p>No production events recorded during this period.</p>
-          <p className="text-sm mt-2">All wind turbines operated at optimal capacity.</p>
+          <p className="text-sm mt-2">All solar panels operated at optimal capacity.</p>
         </div>
       </div>
     );

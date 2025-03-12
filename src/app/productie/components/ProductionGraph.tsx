@@ -14,7 +14,7 @@ import {
 const generateMultiDayData = () => {
   const days = [
     { 
-      date: '27 feb 2024', 
+      date: '27 Feb 2024', 
       windConditions: 'strong',
       baseMultiplier: 1.2,
       gridCongestion: false,
@@ -22,7 +22,7 @@ const generateMultiDayData = () => {
       weatherEvent: null 
     },
     { 
-      date: '28 feb 2024', 
+      date: '28 Feb 2024', 
       windConditions: 'moderate',
       baseMultiplier: 1.0,
       gridCongestion: true, // Local grid congestion during peak hours
@@ -30,7 +30,7 @@ const generateMultiDayData = () => {
       weatherEvent: null
     },
     { 
-      date: '29 feb 2024', 
+      date: '29 Feb 2024', 
       windConditions: 'weak',
       baseMultiplier: 0.7,
       gridCongestion: false,
@@ -38,12 +38,12 @@ const generateMultiDayData = () => {
       weatherEvent: null 
     },
     { 
-      date: '1 mrt 2024', 
+      date: '1 Mar 2024', 
       windConditions: 'stormy',
       baseMultiplier: 1.4,
       gridCongestion: true, // Regional grid overload due to high wind production
       marketPrices: 'volatile',
-      weatherEvent: { time: '11:00', duration: '4 uur' } 
+      weatherEvent: { time: '11:00', duration: '4 hours' } 
     },
   ];
 
@@ -64,7 +64,7 @@ const generateMultiDayData = () => {
       let actualProduction = potentialProduction;
       
       // Apply day-specific events and reductions
-      if (day.date === '28 feb 2024') {
+      if (day.date === '28 Feb 2024') {
         // Grid congestion during morning peak
         if (hour >= 8 && hour <= 11) {
           actualProduction *= 0.7; // 30% reduction due to grid constraints
@@ -73,7 +73,7 @@ const generateMultiDayData = () => {
         if (hour >= 3 && hour <= 6) {
           actualProduction *= 0.4; // Significant reduction during negative prices
         }
-      } else if (day.date === '29 feb 2024') {
+      } else if (day.date === '29 Feb 2024') {
         // Low wind day with maintenance
         if (hour === 10) {
           actualProduction *= 0.75; // Technical maintenance
@@ -82,7 +82,7 @@ const generateMultiDayData = () => {
         if (hour >= 14 && hour <= 16) {
           actualProduction *= 0.85; // Moderate reduction for grid balancing
         }
-      } else if (day.date === '1 mrt 2024') {
+      } else if (day.date === '1 Mar 2024') {
         // Storm protocol
         if (hour >= 11 && hour <= 15) {
           actualProduction *= 0.5; // Safety reduction during storm
@@ -131,67 +131,67 @@ export const allDaysData = generateMultiDayData();
 
 // Production events for each day
 export const productionEvents = {
-  '27 feb 2024': [
+  '27 Feb 2024': [
     {
       time: '12:00',
-      duration: '2 uur',
+      duration: '2 hours',
       impact: -1.2,
-      reason: 'TenneT balanceringsverzoek',
-      description: 'Vrijwillige productieverlaging op verzoek van TenneT voor netbalancering tegen vergoeding.',
+      reason: 'TenneT balancing request',
+      description: 'Voluntary production reduction at TenneT\'s request for grid balancing with compensation.',
       type: 'grid',
     },
   ],
-  '28 feb 2024': [
+  '28 Feb 2024': [
     {
       time: '03:00',
-      duration: '4 uur',
+      duration: '4 hours',
       impact: -3.6,
-      reason: 'Negatieve elektriciteitsprijzen',
-      description: 'Productiebeperking vanwege negatieve prijzen in de vroege ochtend. Hervatting na prijsherstel.',
+      reason: 'Negative electricity prices',
+      description: 'Production limitation due to negative prices in early morning. Resumed after price recovery.',
       type: 'grid',
     },
     {
       time: '08:00',
-      duration: '4 uur',
+      duration: '4 hours',
       impact: -2.4,
-      reason: 'Lokale netcongestie',
-      description: 'Verplichte productiebeperking vanwege overbelasting van het lokale elektriciteitsnet tijdens piekuren.',
+      reason: 'Local grid congestion',
+      description: 'Mandatory production limitation due to local power grid overload during peak hours.',
       type: 'grid',
     },
   ],
-  '29 feb 2024': [
+  '29 Feb 2024': [
     {
       time: '10:00',
-      duration: '3 uur',
+      duration: '3 hours',
       impact: -1.8,
-      reason: 'Gepland onderhoud',
-      description: 'Reguliere inspectie en onderhoud van de turbinebesturing en veiligheidssystemen.',
+      reason: 'Planned maintenance',
+      description: 'Regular inspection and maintenance of turbine control and safety systems.',
       type: 'maintenance',
     },
     {
       time: '14:00',
-      duration: '3 uur',
+      duration: '3 hours',
       impact: -1.2,
-      reason: 'Netbalancering APX',
-      description: 'Strategische productiebeperking vanwege ongunstige day-ahead marktprijzen.',
+      reason: 'Grid balancing APX',
+      description: 'Strategic production limitation due to unfavorable day-ahead market prices.',
       type: 'grid',
     },
   ],
-  '1 mrt 2024': [
+  '1 Mar 2024': [
     {
       time: '11:00',
-      duration: '5 uur',
+      duration: '5 hours',
       impact: -4.2,
-      reason: 'Stormprotocol & Netcongestie',
-      description: 'Preventieve productiebeperking vanwege storm, gevolgd door regionale netcongestie door hoge windproductie in het gebied.',
+      reason: 'Storm protocol & Grid congestion',
+      description: 'Preventive production limitation due to storm, followed by regional grid congestion from high wind production in the area.',
       type: 'weather',
     },
     {
       time: '16:00',
-      duration: '4 uur',
+      duration: '4 hours',
       impact: -3.2,
-      reason: 'Regionale netoverbelasting',
-      description: 'Verplichte productiebeperking op verzoek van netbeheerder vanwege hoge regionale windproductie.',
+      reason: 'Regional grid overload',
+      description: 'Mandatory production limitation at grid operator\'s request due to high regional wind production.',
       type: 'grid',
     },
   ],
@@ -206,7 +206,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
 
   return (
     <div className="bg-white rounded-lg p-6">
-      <h3 className="text-xl font-semibold mb-6">Productie Overzicht</h3>
+      <h3 className="text-xl font-semibold mb-6">Production Overview</h3>
       
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
@@ -224,14 +224,14 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               yAxisId="power"
               domain={[0, 12]}
               tick={{ fill: '#666' }}
-              label={{ value: 'Productie (MW)', angle: -90, position: 'insideLeft', fill: '#666' }}
+              label={{ value: 'Production (MW)', angle: -90, position: 'insideLeft', fill: '#666' }}
             />
             <YAxis
               yAxisId="price"
               orientation="right"
               domain={[0, 80]}
               tick={{ fill: '#666' }}
-              label={{ value: 'Prijs (€/MWh)', angle: 90, position: 'insideRight', fill: '#666' }}
+              label={{ value: 'Price (€/MWh)', angle: 90, position: 'insideRight', fill: '#666' }}
             />
             <Tooltip
               contentStyle={{
@@ -240,8 +240,8 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
                 borderRadius: '4px',
               }}
               formatter={(value: number, name: string) => {
-                if (name === 'price') return [`€${value}/MWh`, 'Prijs'];
-                return [`${value} MW`, name === 'actualProduction' ? 'Actueel' : 'Potentieel'];
+                if (name === 'price') return [`€${value}/MWh`, 'Price'];
+                return [`${value} MW`, name === 'actualProduction' ? 'Actual' : 'Potential'];
               }}
             />
             <Legend />
@@ -251,7 +251,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               dataKey="potentialProduction"
               stroke="#94A3B8"
               strokeDasharray="5 5"
-              name="Potentieel"
+              name="Potential"
               dot={false}
             />
             <Line
@@ -259,7 +259,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               type="monotone"
               dataKey="actualProduction"
               stroke="#2563EB"
-              name="Actueel"
+              name="Actual"
               dot={false}
             />
             <Line
@@ -267,7 +267,7 @@ export const ProductionGraph: React.FC<ProductionGraphProps> = ({ selectedDate }
               type="monotone"
               dataKey="price"
               stroke="#22C55E"
-              name="Prijs"
+              name="Price"
               dot={false}
             />
           </LineChart>

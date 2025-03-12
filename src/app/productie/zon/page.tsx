@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, ArrowUpRight, ArrowDownRight, Settings, AlertTriangle, BarChart3, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sun, ArrowUpRight, ArrowDownRight, Settings, AlertTriangle, BarChart3, ChevronLeft, ChevronRight, ArrowRight, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
 import { ProductionGraph, allDaysData } from './components/ProductionGraph';
-import { ProductionEvents } from '../wind/components/ProductionEvents';
+import { ProductionEvents } from './components/ProductionEvents';
 import { FinancialOverview } from '../wind/components/FinancialOverview';
 
 const SolarProduction = () => {
@@ -55,7 +55,7 @@ const SolarProduction = () => {
   const solarAssets = [
     {
       id: 1,
-      name: 'Zonnepark Almere',
+      name: 'Solar Park Almere',
       location: 'Almere',
       capacity: 4.0,
       currentProduction: 3.2,
@@ -66,7 +66,7 @@ const SolarProduction = () => {
     },
     {
       id: 2,
-      name: 'Zonnepark Lelystad',
+      name: 'Solar Park Lelystad',
       location: 'Lelystad',
       capacity: 5.0,
       currentProduction: 3.8,
@@ -77,7 +77,7 @@ const SolarProduction = () => {
     },
     {
       id: 3,
-      name: 'Zonnepark Dronten',
+      name: 'Solar Park Dronten',
       location: 'Dronten',
       capacity: 3.0,
       currentProduction: 2.1,
@@ -92,8 +92,8 @@ const SolarProduction = () => {
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-semibold">Zonne-energie Productie</h1>
-          <p className="text-gray-500 mt-2">Live inzicht in al uw zonne-energie assets</p>
+          <h1 className="text-4xl font-semibold">Solar Energy Production</h1>
+          <p className="text-gray-500 mt-2">Live insight into all your solar energy assets</p>
         </div>
         <div className="flex items-center gap-4">
           <button 
@@ -123,7 +123,7 @@ const SolarProduction = () => {
         >
           <div className="flex items-center gap-3 mb-4">
             <Sun className="w-5 h-5 text-yellow-500" />
-            <h3 className="text-lg font-medium">Huidige Productie</h3>
+            <h3 className="text-lg font-medium">Current Production</h3>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold">{dayStats.currentProduction.toFixed(1)}</span>
@@ -131,7 +131,7 @@ const SolarProduction = () => {
           </div>
           <div className="flex items-center gap-2 mt-2 text-green-500 text-sm">
             <ArrowUpRight className="w-4 h-4" />
-            <span>8.5% vs gisteren</span>
+            <span>8.5% vs yesterday</span>
           </div>
         </motion.div>
 
@@ -143,14 +143,14 @@ const SolarProduction = () => {
         >
           <div className="flex items-center gap-3 mb-4">
             <BarChart3 className="w-5 h-5 text-yellow-500" />
-            <h3 className="text-lg font-medium">Gemiddelde Efficiëntie</h3>
+            <h3 className="text-lg font-medium">Average Efficiency</h3>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold">{dayStats.averageEfficiency}%</span>
           </div>
           <div className="flex items-center gap-2 mt-2 text-red-500 text-sm">
             <ArrowDownRight className="w-4 h-4" />
-            <span>3.2% vs gisteren</span>
+            <span>3.2% vs yesterday</span>
           </div>
         </motion.div>
 
@@ -162,15 +162,15 @@ const SolarProduction = () => {
         >
           <div className="flex items-center gap-3 mb-4">
             <Settings className="w-5 h-5 text-yellow-500" />
-            <h3 className="text-lg font-medium">CO₂ Besparing</h3>
+            <h3 className="text-lg font-medium">CO₂ Savings</h3>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold">{dayStats.co2Saved.toFixed(1)}</span>
-            <span className="text-gray-500">ton</span>
+            <span className="text-gray-500">tons</span>
           </div>
           <div className="flex items-center gap-2 mt-2 text-green-500 text-sm">
             <ArrowUpRight className="w-4 h-4" />
-            <span>6.3% vs gisteren</span>
+            <span>6.3% vs yesterday</span>
           </div>
         </motion.div>
       </div>
@@ -189,52 +189,45 @@ const SolarProduction = () => {
       <ProductionEvents selectedDate={selectedDate} />
 
       {/* Solar Assets List */}
-      <div className="bg-white rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b">
-          <h3 className="text-xl font-semibold">Zonne-energie Assets</h3>
+      <div className="mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">Solar Assets</h2>
+          <button className="text-blue-500 hover:text-blue-600 flex items-center gap-2">
+            View All <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-        <div className="divide-y">
+
+        <div className="space-y-4">
           {solarAssets.map((asset) => (
             <motion.div
               key={asset.id}
-              className="p-6 hover:bg-gray-50 transition-colors"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              className="bg-white rounded-lg p-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             >
-              <div className="flex items-start justify-between">
+              <div className="flex justify-between items-start">
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-lg font-medium">{asset.name}</h4>
-                    {asset.alerts > 0 && (
-                      <span className="px-2 py-1 rounded-full bg-red-100 text-red-600 text-xs">
-                        {asset.alerts} alerts
-                      </span>
-                    )}
-                  </div>
+                  <h3 className="text-xl font-medium">{asset.name}</h3>
                   <p className="text-gray-500">{asset.location}</p>
                 </div>
-                <Link
-                  href={`/productie/zon/${asset.id}`}
-                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 text-sm flex items-center gap-2"
-                >
-                  Details
-                  <ArrowUpRight className="w-4 h-4" />
-                </Link>
+                <button className="text-gray-400 hover:text-gray-600">
+                  <MoreVertical className="w-5 h-5" />
+                </button>
               </div>
-              
+
               <div className="grid grid-cols-4 gap-6 mt-6">
                 <div>
-                  <p className="text-sm text-gray-500">Huidige Productie</p>
+                  <p className="text-sm text-gray-500">Current Production</p>
                   <p className="text-lg font-medium">
                     {asset.currentProduction} / {asset.capacity} MW
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Efficiëntie</p>
+                  <p className="text-sm text-gray-500">Efficiency</p>
                   <p className="text-lg font-medium">{asset.efficiency}%</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Instraling</p>
+                  <p className="text-sm text-gray-500">Irradiance</p>
                   <p className="text-lg font-medium">{asset.irradiance} W/m²</p>
                 </div>
                 <div>
@@ -242,7 +235,7 @@ const SolarProduction = () => {
                   <p className={`text-lg font-medium ${
                     asset.status === 'operational' ? 'text-green-500' : 'text-yellow-500'
                   }`}>
-                    {asset.status === 'operational' ? 'Operationeel' : 'In onderhoud'}
+                    {asset.status === 'operational' ? 'Operational' : 'In Maintenance'}
                   </p>
                 </div>
               </div>
