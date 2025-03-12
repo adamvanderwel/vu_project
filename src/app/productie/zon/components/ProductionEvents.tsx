@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, AlertTriangle, Cloud, Power } from 'lucide-react';
+import { Clock, AlertTriangle, Cloud, Power, Droplets } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { productionEvents } from './ProductionGraph';
 import { ProductionEvent, ProductionEventsMap } from '@/types';
@@ -8,7 +8,7 @@ interface ProductionEventsProps {
   selectedDate: string;
 }
 
-const getEventIcon = (type: 'maintenance' | 'grid' | 'weather') => {
+const getEventIcon = (type: ProductionEvent['type']) => {
   switch (type) {
     case 'maintenance':
       return Power;
@@ -16,12 +16,16 @@ const getEventIcon = (type: 'maintenance' | 'grid' | 'weather') => {
       return AlertTriangle;
     case 'weather':
       return Cloud;
+    case 'environmental':
+      return Droplets;
+    case 'technical':
+      return AlertTriangle;
     default:
       return AlertTriangle;
   }
 };
 
-const getEventColorClass = (type: 'maintenance' | 'grid' | 'weather') => {
+const getEventColorClass = (type: ProductionEvent['type']) => {
   switch (type) {
     case 'maintenance':
       return 'bg-blue-100 text-blue-500';
@@ -29,6 +33,10 @@ const getEventColorClass = (type: 'maintenance' | 'grid' | 'weather') => {
       return 'bg-orange-100 text-orange-500';
     case 'weather':
       return 'bg-purple-100 text-purple-500';
+    case 'environmental':
+      return 'bg-green-100 text-green-500';
+    case 'technical':
+      return 'bg-red-100 text-red-500';
     default:
       return 'bg-gray-100 text-gray-500';
   }

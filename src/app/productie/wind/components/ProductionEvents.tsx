@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { productionEvents, findDayDataByDate, eventTypes } from './ProductionGraph';
 import { format, parseISO } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { ProductionEvent, ProductionEventsMap } from '../../../../types';
 
 // Define event types and their characteristics for consistent styling
 const eventIconMap = {
@@ -135,13 +136,8 @@ const predefinedEvents = {
   ]
 };
 
-interface ProductionEvent {
-  time: string;
-  duration: string;
-  impact: number;
-  reason: string;
-  description: string;
-  type: string;
+// Need to extend the ProductionEvent type with these additional properties
+interface ExtendedProductionEvent extends ProductionEvent {
   hour?: number;
   eventTypeData?: {
     icon: any;
@@ -149,10 +145,6 @@ interface ProductionEvent {
     bgColor: string;
   };
 }
-
-type ProductionEventsMap = {
-  [date: string]: ProductionEvent[];
-};
 
 interface ProductionEventsProps {
   selectedDate?: string;
@@ -189,49 +181,36 @@ const parseDateString = (dateStr: string): Date => {
 };
 
 // Generate a deterministic random event based on hour and date
-const generateDeterministicEvent = (hour: number, date?: Date): ProductionEvent => {
+const generateDeterministicEvent = (hour: number, date?: Date): ExtendedProductionEvent => {
   // Create a deterministic seed from hour and date
   const dateSeed = date ? date.getDate() + (date.getMonth() * 31) : 0;
-  const seed = hour + dateSeed;
+  const seed = (hour + 1) * (dateSeed + 1);
   
-  // Use the seed to select event type (making it deterministic but appearing random)
-  const eventTypes = Object.keys(predefinedEvents);
-  const typeIndex = seed % eventTypes.length;
-  const eventType = eventTypes[typeIndex];
+  // Use the seed to deterministically select an event type
+  const eventTypes: ProductionEvent['type'][] = ['grid', 'maintenance', 'weather', 'technical', 'environmental'];
+  const eventType = eventTypes[seed % eventTypes.length];
   
-  // Select event category from the chosen type
-  const categories = predefinedEvents[eventType as keyof typeof predefinedEvents];
-  const categoryIndex = Math.floor(seed / 5) % categories.length;
-  const category = categories[categoryIndex];
+  // Use the seed to select a reason based on the event type
+  const eventCategory = predefinedEvents[eventType as keyof typeof predefinedEvents] || predefinedEvents.grid;
+  const reasonData = eventCategory[seed % eventCategory.length];
   
-  // Select description based on hour
-  const descriptions = category.descriptions;
-  const descriptionIndex = (seed * 7) % descriptions.length;
-  const description = descriptions[descriptionIndex];
+  // Select a description based on the seed
+  const descriptions = reasonData.descriptions;
+  const description = descriptions[seed % descriptions.length];
   
-  // Generate a deterministic but seemingly random impact value
-  const baseImpact = ((seed * 13) % 10) / 10 + 0.5; // Range: 0.5 - 1.5
-  const impact = -(Math.round(baseImpact * 10) / 10).toFixed(1);
+  // Create an impact percentage based on hour (more severe in peak hours)
+  const impactBase = 5 + (hour >= 10 && hour <= 18 ? 10 : 0);
+  const impact = impactBase + (seed % 15);
   
-  // Generate a deterministic but seemingly random duration
-  const duration = (seed % 3) + 1;
-  
-  // Create the icon and color data
-  const iconData = {
-    icon: eventIconMap[eventType as keyof typeof eventIconMap],
-    color: eventColorMap[eventType as keyof typeof eventColorMap].split(' ')[0],
-    bgColor: eventColorMap[eventType as keyof typeof eventColorMap].split(' ')[1]
-  };
-  
+  // Create a consistent event
   return {
-    time: `${String(hour).padStart(2, '0')}:00`,
-    duration: `${duration} hour${duration > 1 ? 's' : ''}`,
-    impact: Number(impact),
-    reason: category.reason,
-    description: description,
+    time: `${hour}:00`,
+    duration: `${30 + (seed % 90)} min`,
+    impact,
+    reason: reasonData.reason,
+    description,
     type: eventType,
-    hour: hour,
-    eventTypeData: iconData
+    hour
   };
 };
 
@@ -245,11 +224,11 @@ export const ProductionEvents: React.FC<ProductionEventsProps> = ({
   const [localSelectedEvent, setLocalSelectedEvent] = useState<any>(null);
   
   // Get events for a single day, ensuring we have valid events
-  const getSingleDayEvents = (): ProductionEvent[] => {
+  const getSingleDayEvents = (): ExtendedProductionEvent[] => {
     if (!selectedDate) return [];
     
     // First try to get events from our pre-generated map
-    let events = (productionEvents as ProductionEventsMap)[selectedDate] || [];
+    let events = (productionEvents as ProductionEventsMap)[selectedDate] || [] as ExtendedProductionEvent[];
     
     // If no events were found, generate a new day's data with guaranteed events
     if (events.length === 0) {
@@ -257,7 +236,7 @@ export const ProductionEvents: React.FC<ProductionEventsProps> = ({
         const date = parseDateString(selectedDate);
         const dayData = findDayDataByDate(date);
         if (dayData && dayData.events) {
-          events = dayData.events;
+          events = dayData.events as ExtendedProductionEvent[];
         }
       } catch (error) {
         console.error('Error getting events for date', error);
@@ -266,7 +245,7 @@ export const ProductionEvents: React.FC<ProductionEventsProps> = ({
     
     // Filter by selected hour if specified
     if (selectedHour !== undefined) {
-      events = events.filter(event => {
+      events = events.filter((event: ExtendedProductionEvent) => {
         const eventHour = event.hour || parseInt(event.time.split(':')[0], 10);
         return eventHour === selectedHour;
       });
@@ -296,22 +275,22 @@ export const ProductionEvents: React.FC<ProductionEventsProps> = ({
   };
   
   // Get events for multiple days, ensuring we have valid events
-  const getMultipleDaysEvents = (): Array<ProductionEvent & { date: string }> => {
+  const getMultipleDaysEvents = (): Array<ExtendedProductionEvent & { date: string }> => {
     if (!selectedDates || selectedDates.length === 0) return [];
     
-    const allEvents: Array<ProductionEvent & { date: string }> = [];
+    const allEvents: Array<ExtendedProductionEvent & { date: string }> = [];
     
     selectedDates.forEach(date => {
       const dateString = format(date, 'd MMM yyyy', { locale: nl });
       
       // First try to get events from our pre-generated map
-      let dayEvents = (productionEvents as ProductionEventsMap)[dateString] || [];
+      let dayEvents = (productionEvents as ProductionEventsMap)[dateString] || [] as ExtendedProductionEvent[];
       
       // If no events were found, generate new data with guaranteed events
       if (dayEvents.length === 0) {
         const dayData = findDayDataByDate(date);
         if (dayData && dayData.events) {
-          dayEvents = dayData.events;
+          dayEvents = dayData.events as ExtendedProductionEvent[];
         }
       }
       
@@ -348,7 +327,7 @@ export const ProductionEvents: React.FC<ProductionEventsProps> = ({
     if (!acc[type]) acc[type] = [];
     acc[type].push(event);
     return acc;
-  }, {} as { [key: string]: ProductionEvent[] });
+  }, {} as { [key: string]: ExtendedProductionEvent[] });
 
   // Sort events chronologically by hour
   const sortedEvents = [...events].sort((a, b) => {

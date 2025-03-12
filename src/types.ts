@@ -4,7 +4,13 @@ export interface ProductionEvent {
   impact: number;
   reason: string;
   description: string;
-  type: 'grid' | 'maintenance' | 'weather';
+  type: 'grid' | 'maintenance' | 'weather' | 'technical' | 'environmental';
+  hour?: number;
+  eventTypeData?: {
+    icon: any;
+    color: string;
+    bgColor: string;
+  };
 }
 
 export interface ProductionEventsMap {
