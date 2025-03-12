@@ -2,7 +2,7 @@ import React from 'react';
 import { Clock, AlertTriangle, Cloud, Power, Droplets } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { productionEvents } from './ProductionGraph';
-import { ProductionEvent, ProductionEventsMap } from '@/types';
+import { ProductionEvent, ProductionEventsMap } from '../../../../types';
 
 interface ProductionEventsProps {
   selectedDate: string;
