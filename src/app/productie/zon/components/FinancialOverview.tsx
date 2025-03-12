@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Euro, TrendingUp, TrendingDown, BarChart3, Zap, AlertCircle, Wallet } from 'lucide-react';
-import { ProductionEventsMap, ProductionEvent } from '@/types';
+import { ProductionEventsMap, ProductionEvent } from '../../../../types';
 import { productionEvents } from './ProductionGraph';
 
 interface FinancialOverviewProps {
