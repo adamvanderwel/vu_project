@@ -95,7 +95,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
         >
           <div className="flex items-center gap-2 mb-2">
             <Euro className="w-5 h-5 text-blue-500" />
-            <span className="text-gray-600">Today's Revenue</span>
+            <span className="text-gray-600">Today&apos;s Revenue</span>
           </div>
           <div className="text-2xl font-semibold">€{metrics.dailyRevenue.toFixed(2)}</div>
           <div className="flex items-center gap-1 mt-2">
