@@ -2,9 +2,24 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, ArrowUpRight, TrendingUp, Cloud, CloudSun, Clock, Leaf, AlertTriangle, PlugZap, WrenchIcon, ZapOff, BarChart3 } from 'lucide-react';
+import { Sun, ArrowUpRight, TrendingUp, Cloud, CloudSun, Clock, Leaf, AlertTriangle, PlugZap, WrenchIcon, ZapOff, BarChart3, ChevronDown, ChevronUp, Info, ExternalLink, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip, Legend, ReferenceLine } from 'recharts';
+
+interface CurtailmentEvent {
+  id: string;
+  type: 'grid' | 'maintenance' | 'equipment' | 'regulatory';
+  severity: 'low' | 'moderate' | 'high';
+  impact: number; // Exact MW impact
+  percentage: number; // Percentage impact on total potential
+  reason: string; // Short reason
+  description: string; // Detailed description
+  startTime?: string;
+  endTime?: string;
+  status: 'active' | 'scheduled' | 'resolved';
+  resolution?: string;
+  estimatedResolutionTime?: string;
+}
 
 interface Constraint {
   type: 'grid' | 'maintenance' | 'equipment' | 'regulatory';
@@ -27,6 +42,7 @@ interface SolarProductionData {
     equipment: number;
     regulatory: number;
   };
+  curtailmentEvents: CurtailmentEvent[]; // Detailed events explaining curtailment
   trend: number;
   efficiency: number;
   peakTime: string;
@@ -41,6 +57,42 @@ interface SolarProductionData {
   }>;
   forecast: 'sunny' | 'partly-cloudy' | 'cloudy';
 }
+
+// Define some predefined descriptions for better context
+const curtailmentDescriptions = {
+  grid: [
+    "Grid operator requested power reduction due to local congestion in the distribution network",
+    "Negative electricity prices triggered automatic power reduction through market-based curtailment",
+    "Grid balancing service activated - compensated curtailment as part of system services contract",
+    "Regional transmission constraint requiring power limitation as per grid code requirements",
+    "Grid frequency regulation required power curtailment in response to system stability needs",
+    "Electricity network maintenance caused temporary disconnection from export feeder"
+  ],
+  maintenance: [
+    "Scheduled preventive maintenance - inverter inspection and firmware updates",
+    "Panel cleaning operation to optimize energy capture efficiency",
+    "Quarterly equipment safety inspection as required by insurance policy",
+    "Replacement of faulty optimizer units on String 6",
+    "Annual certification and performance testing by third-party contractor",
+    "Thermographic scanning to identify potential hotspots in array"
+  ],
+  equipment: [
+    "Inverter performance degradation detected - operating at reduced capacity pending replacement",
+    "String 3 connection fault detected - maintenance team notified",
+    "DC cable insulation resistance issue - system in protective mode",
+    "Monitoring system communication error causing failsafe power limitation",
+    "Transformer temperature high - automatic power reduction until cooling completes",
+    "Junction box moisture detection triggered partial shutdown protocol"
+  ],
+  regulatory: [
+    "Environmental protection curtailment during bird migration period as per permit conditions",
+    "Noise reduction mode activated during restricted hours for neighboring properties",
+    "Light reflection management during specific sun angles to prevent glare for nearby highway",
+    "Temporary power limitation due to grid permit restrictions during network reconfiguration",
+    "Compliance with local authority request during community event",
+    "Grid connection agreement limitation during substation reinforcement works"
+  ]
+};
 
 // In a real application, this would be fetched from an API
 const getSolarData = (): SolarProductionData => {
@@ -121,58 +173,131 @@ const getSolarData = (): SolarProductionData => {
     regulatory: 0
   };
   
+  // Generate curtailment events with detailed information
+  const curtailmentEvents: CurtailmentEvent[] = [];
+  
   // Add grid constraint during peak hours
   if (currentHour >= 11 && currentHour <= 14 && Math.random() > 0.6) {
-    const impact = 15;
+    const impact = Math.round((idealProduction - currentProduction) * 100) / 100;
+    const percentage = Math.round((impact / idealProduction) * 100);
+    
     constraints.push({
       type: 'grid',
       severity: 'moderate',
-      impact,
+      impact: percentage,
       message: 'Grid congestion limiting export capacity',
       startTime: '11:00',
       endTime: '14:00'
     });
-    curtailmentReasons.grid = impact;
+    
+    curtailmentReasons.grid = percentage;
+    
+    // Add detailed grid curtailment event
+    curtailmentEvents.push({
+      id: 'grid-congestion-1',
+      type: 'grid',
+      severity: 'moderate',
+      impact: impact,
+      percentage: percentage,
+      reason: 'Grid Congestion',
+      description: curtailmentDescriptions.grid[Math.floor(Math.random() * curtailmentDescriptions.grid.length)],
+      startTime: '11:00',
+      endTime: '14:00',
+      status: 'active',
+      estimatedResolutionTime: '14:00'
+    });
   }
   
   // Add maintenance constraint
   if (currentHour === 9 && Math.random() > 0.7) {
-    const impact = 50;
+    const impact = Math.round((idealProduction - currentProduction) * 100) / 100;
+    const percentage = Math.round((impact / idealProduction) * 100);
+    
     constraints.push({
       type: 'maintenance',
       severity: 'high',
-      impact,
+      impact: percentage,
       message: 'Scheduled inverter maintenance',
       startTime: '09:00',
       endTime: '10:30'
     });
-    curtailmentReasons.maintenance = impact;
+    
+    curtailmentReasons.maintenance = percentage;
+    
+    // Add detailed maintenance curtailment event
+    curtailmentEvents.push({
+      id: 'scheduled-maintenance-1',
+      type: 'maintenance',
+      severity: 'high',
+      impact: impact,
+      percentage: percentage,
+      reason: 'Scheduled Maintenance',
+      description: curtailmentDescriptions.maintenance[Math.floor(Math.random() * curtailmentDescriptions.maintenance.length)],
+      startTime: '09:00',
+      endTime: '10:30',
+      status: 'active',
+      estimatedResolutionTime: '10:30'
+    });
   }
   
   // Add equipment constraint
   if (Math.random() > 0.7) {
-    const impact = 5;
+    const impact = Math.round(idealProduction * 0.05 * 100) / 100; // 5% of ideal production
+    const percentage = 5;
+    
     constraints.push({
       type: 'equipment',
       severity: 'low',
-      impact,
+      impact: percentage,
       message: 'String 3 offline - under investigation',
     });
-    curtailmentReasons.equipment = impact;
+    
+    curtailmentReasons.equipment = percentage;
+    
+    // Add detailed equipment curtailment event
+    curtailmentEvents.push({
+      id: 'equipment-fault-1',
+      type: 'equipment',
+      severity: 'low',
+      impact: impact,
+      percentage: percentage,
+      reason: 'Equipment Fault',
+      description: curtailmentDescriptions.equipment[Math.floor(Math.random() * curtailmentDescriptions.equipment.length)],
+      status: 'active',
+      estimatedResolutionTime: '16:00'
+    });
   }
   
   // Occasionally add regulatory constraint
   if (Math.random() > 0.9) {
-    const impact = 20;
+    const impact = Math.round(idealProduction * 0.2 * 100) / 100; // 20% of ideal production
+    const percentage = 20;
+    
     constraints.push({
       type: 'regulatory',
       severity: 'moderate',
-      impact,
+      impact: percentage,
       message: 'Environmental protection curtailment',
       startTime: '12:00',
       endTime: '15:00'
     });
-    curtailmentReasons.regulatory = impact;
+    
+    curtailmentReasons.regulatory = percentage;
+    
+    // Add detailed regulatory curtailment event
+    curtailmentEvents.push({
+      id: 'regulatory-1',
+      type: 'regulatory',
+      severity: 'moderate',
+      impact: impact,
+      percentage: percentage,
+      reason: 'Regulatory Requirement',
+      description: curtailmentDescriptions.regulatory[Math.floor(Math.random() * curtailmentDescriptions.regulatory.length)],
+      startTime: '12:00',
+      endTime: '15:00',
+      status: 'active',
+      resolution: 'Automatic resolution at end time'
+    });
   }
   
   // Simulating real data - in production this would come from your API
@@ -183,6 +308,7 @@ const getSolarData = (): SolarProductionData => {
     dailyPotentialTotal,
     dailyCurtailment,
     curtailmentReasons,
+    curtailmentEvents,
     trend: 12, // % increase from yesterday
     efficiency: 86, // % of maximum potential
     peakTime: hourlyData[peakHour].hour,
@@ -197,6 +323,8 @@ const getSolarData = (): SolarProductionData => {
 const SolarProductionWidget = () => {
   const solarData = getSolarData();
   const [showDetails, setShowDetails] = useState(false);
+  const [expandedCurtailmentId, setExpandedCurtailmentId] = useState<string | null>(null);
+  const [showAllCurtailment, setShowAllCurtailment] = useState(false);
   
   // Format data for the chart - only include daytime hours (7am-7pm)
   const chartData = solarData.hourlyData.filter(hour => {
@@ -235,13 +363,23 @@ const SolarProductionWidget = () => {
     }
   };
 
+  // Get constraint background color
+  const getConstraintSeverityBgColor = (severity: string) => {
+    switch(severity) {
+      case 'low': return 'bg-yellow-50';
+      case 'moderate': return 'bg-orange-50';
+      case 'high': return 'bg-red-50';
+      default: return 'bg-gray-50';
+    }
+  };
+
   // Get constraint icon
   const getConstraintIcon = (type: string) => {
     switch(type) {
       case 'grid': return <PlugZap className="w-4 h-4" />;
       case 'maintenance': return <WrenchIcon className="w-4 h-4" />;
       case 'equipment': return <AlertTriangle className="w-4 h-4" />;
-      case 'regulatory': return <AlertTriangle className="w-4 h-4" />;
+      case 'regulatory': return <AlertCircle className="w-4 h-4" />;
       default: return <AlertTriangle className="w-4 h-4" />;
     }
   };
@@ -255,6 +393,26 @@ const SolarProductionWidget = () => {
         value
       }));
   };
+
+  // Find the primary curtailment reason (highest impact)
+  const getPrimaryCurtailmentReason = () => {
+    if (solarData.curtailmentEvents.length === 0) return null;
+    
+    const sortedEvents = [...solarData.curtailmentEvents].sort((a, b) => b.impact - a.impact);
+    return sortedEvents[0];
+  };
+
+  // Toggle expanded curtailment details
+  const toggleCurtailmentDetails = (id: string) => {
+    if (expandedCurtailmentId === id) {
+      setExpandedCurtailmentId(null);
+    } else {
+      setExpandedCurtailmentId(id);
+    }
+  };
+
+  // Get primary curtailment reason
+  const primaryReason = getPrimaryCurtailmentReason();
 
   return (
     <motion.div 
@@ -316,6 +474,10 @@ const SolarProductionWidget = () => {
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.5}/>
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
                   </linearGradient>
+                  <linearGradient id="colorCurtailed" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2}/>
+                  </linearGradient>
                 </defs>
                 <XAxis 
                   dataKey="hour" 
@@ -355,7 +517,7 @@ const SolarProductionWidget = () => {
                   dataKey="curtailment"
                   stroke="#ef4444"
                   fillOpacity={0.5}
-                  fill="#fee2e2"
+                  fill="url(#colorCurtailed)"
                   stackId="1"
                 />
                 <Area
@@ -387,12 +549,159 @@ const SolarProductionWidget = () => {
         {/* Curtailment summary */}
         {solarData.dailyCurtailment > 0 && (
           <div className="mt-4 bg-red-50 p-3 rounded-lg border border-red-100">
-            <div className="flex items-center gap-2">
-              <ZapOff className="w-4 h-4 text-red-500" />
-              <span className="text-sm font-medium text-red-700">Curtailed: {solarData.dailyCurtailment} MWh ({curtailmentPercentage}%)</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ZapOff className="w-4 h-4 text-red-500" />
+                <span className="text-sm font-medium text-red-700">Curtailed: {solarData.dailyCurtailment} MWh ({curtailmentPercentage}%)</span>
+              </div>
             </div>
-            <div className="text-xs text-red-600 mt-1">
-              Potential: {solarData.dailyPotentialTotal} MWh
+            
+            {/* Simplified view showing main reason */}
+            {!showAllCurtailment && primaryReason && (
+              <div className="mt-2 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs">
+                  <div className={getConstraintSeverityColor(primaryReason.severity)}>
+                    {getConstraintIcon(primaryReason.type)}
+                  </div>
+                  <span className="text-gray-700">{primaryReason.reason}: {primaryReason.impact.toFixed(1)} MW impact</span>
+                </div>
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowAllCurtailment(true);
+                  }}
+                  className="bg-white text-xs px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1"
+                >
+                  <span>View Details</span> <ChevronDown className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+            
+            {/* Show collapse button if details are open */}
+            {showAllCurtailment && (
+              <div className="flex justify-between items-center mt-1">
+                <div className="text-xs text-red-600">
+                  Potential: {solarData.dailyPotentialTotal} MWh | Lost: {solarData.dailyCurtailment} MWh
+                </div>
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowAllCurtailment(false);
+                  }}
+                  className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1"
+                >
+                  <span>Hide</span> <ChevronUp className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+            
+            {/* Detailed curtailment events */}
+            <div className={`mt-3 space-y-2 overflow-hidden transition-all duration-300 ${showAllCurtailment ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="text-xs font-semibold text-red-700 mb-1">
+                Curtailment Events
+              </div>
+              
+              {solarData.curtailmentEvents.map((event) => (
+                <div 
+                  key={event.id} 
+                  className={`border border-red-100 rounded-md overflow-hidden ${getConstraintSeverityBgColor(event.severity)}`}
+                >
+                  <div 
+                    className="p-2 flex items-center justify-between cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleCurtailmentDetails(event.id);
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={getConstraintSeverityColor(event.severity)}>
+                        {getConstraintIcon(event.type)}
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-gray-800">
+                          {event.reason}
+                        </div>
+                        <div className="text-2xs text-gray-600">
+                          {event.impact.toFixed(1)} MW ({event.percentage}%) impact
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className={`text-2xs ${getConstraintSeverityColor(event.severity)} font-medium px-1.5 py-0.5 rounded-full ${event.severity === 'high' ? 'bg-red-100' : event.severity === 'moderate' ? 'bg-orange-100' : 'bg-yellow-100'}`}>
+                        {event.severity}
+                      </div>
+                      {expandedCurtailmentId === event.id ? 
+                        <ChevronUp className="w-3 h-3 text-gray-500" /> :
+                        <ChevronDown className="w-3 h-3 text-gray-500" />
+                      }
+                    </div>
+                  </div>
+                  
+                  {/* Expanded event details */}
+                  {expandedCurtailmentId === event.id && (
+                    <div className="border-t border-red-100 p-2 text-2xs bg-white/50">
+                      <div className="text-gray-700 mb-1.5">
+                        {event.description}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-gray-500">Status:</span>{' '}
+                          <span className={
+                            event.status === 'active' ? 'text-red-600 font-medium' : 
+                            event.status === 'scheduled' ? 'text-blue-600 font-medium' : 
+                            'text-green-600 font-medium'
+                          }>
+                            {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                          </span>
+                        </div>
+                        
+                        {event.startTime && (
+                          <div>
+                            <span className="text-gray-500">Period:</span>{' '}
+                            <span className="text-gray-700">
+                              {event.startTime} - {event.endTime}
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div>
+                          <span className="text-gray-500">Loss:</span>{' '}
+                          <span className="text-red-600 font-medium">
+                            {event.impact.toFixed(1)} MW
+                          </span>
+                        </div>
+                        
+                        {event.estimatedResolutionTime && (
+                          <div>
+                            <span className="text-gray-500">Est. resolution:</span>{' '}
+                            <span className="text-gray-700">
+                              {event.estimatedResolutionTime}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {event.resolution && (
+                        <div className="mt-1.5 text-gray-700">
+                          <span className="text-gray-500">Resolution plan:</span>{' '}
+                          {event.resolution}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              <div className="flex justify-end">
+                <a 
+                  href="/productie/zon"
+                  className="text-2xs flex items-center gap-0.5 text-amber-600 hover:text-amber-700"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  View full curtailment history <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
           </div>
         )}
