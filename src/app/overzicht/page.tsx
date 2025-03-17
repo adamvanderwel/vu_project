@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, FileText, AlertTriangle, Wind } from 'lucide-react';
 import Image from 'next/image';
+import SolarProductionWidget from '../../components/SolarProductionWidget';
 
 const AvailabilityBar = () => (
   <div className="bg-white rounded-lg p-8">
@@ -129,6 +130,34 @@ export default function Overview() {
               subtitle="216011464567"
               link="Financial overview"
             />
+          </div>
+          
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-4">Live Production</h2>
+            <div className="grid grid-cols-2 gap-6">
+              <SolarProductionWidget />
+              
+              <motion.div 
+                className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-6 border border-sky-100 hover:shadow-md transition-all"
+                whileHover={{ scale: 1.02 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-sky-400 p-2 rounded-lg">
+                      <Wind className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-800">Wind Production</h3>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-sky-500" />
+                </div>
+                <div className="h-[180px] flex items-center justify-center">
+                  <p className="text-gray-400">Wind widget coming soon</p>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
         
